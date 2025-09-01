@@ -21,10 +21,4 @@ class EditServiceRequest extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-         $data['service_name'] = ucwords($data['service_name']);
-        return $data;
-    }
 }

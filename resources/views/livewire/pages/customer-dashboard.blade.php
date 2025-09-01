@@ -60,6 +60,21 @@
                         {{ __('My Vehicle') }}
 
                     </button>
+
+                    <a href="{{ route('page.checkout') }}"
+                        class="hs-tab-active:bg-white hs-tab-active:text-gray-700 hs-tab-active:dark:bg-neutral-800 hs-tab-active:dark:text-neutral-400 dark:hs-tab-active:bg-gray-800 py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm text-gray-500 hover:text-gray-700 focus:outline-hidden focus:text-gray-700 font-medium rounded-lg hover:hover:text-neutral-800 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:text-white dark:focus:text-white"
+                        id="segment-item-4" aria-selected="false"
+                        role="tab">
+
+                        <svg class="size-6 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                        </svg>
+
+                        {{ __('Checkout') }}
+
+                    </a>
                 </nav>
             </div>
         </div>
@@ -86,7 +101,6 @@
                         {{ __('Get Order') }}
                     </a>
                 </div>
-
 
                 <!--Order Tab-->
                 <div class="flex">
@@ -253,6 +267,7 @@
                     </div>
                 </div>
                 <!-- End of Order Tab-->
+
 
             </div>
 
@@ -529,6 +544,25 @@
                 <!-- End of Vehicle Tab-->
 
             </div>
+
+            {{-- <div id="segment-4" class="hidden" role="tabpanel" aria-labelledby="segment-item-4">
+
+
+                <div
+                    class="flex flex-row align-items-center items-center justify-between gap-x-3 text-gray-800 dark:text-neutral-200 mb-5">
+
+                    <div>
+                        <h4 class="font-semibold">
+                            {{ __('Checkout') }}
+                        </h4>
+                    </div>
+                </div>
+
+                <!--checkout Tab-->
+
+                <!-- End of checkout Tab-->
+
+            </div> --}}
         </div>
 
     </div>

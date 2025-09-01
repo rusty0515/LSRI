@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('url');
             $table->string('alt_text')->nullable();
             $table->timestamps();
+             $table->index('product_id');
         });
     }
 

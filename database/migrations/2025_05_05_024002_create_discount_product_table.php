@@ -21,6 +21,8 @@ return new class extends Migration
             $table->enum('discount_type', ['fixed', 'percentage'])->default('percentage');
             $table->decimal('discount_value', 10, 2)->nullable();
             $table->timestamps();
+            $table->index('product_id'); // For discount relationships
+            $table->index('discount_id');
         });
     }
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('prod_cat_slug')->unique();
             $table->text('prod_cat_desc')->nullable();
             $table->string('prod_cat_image')->nullable();
-            $table->boolean('is_visible')->default(0);
+            $table->boolean('is_visible')->default(0)->index();
             $table->timestamps();
         });
     }

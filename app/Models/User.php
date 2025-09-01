@@ -87,7 +87,7 @@ class User extends Authenticatable implements FilamentUser
             'admin' => $user && $user->hasRole('super_admin'),
             'service'     => $user && $user->hasAnyRole(['mechanic']),
             'customer'    => $user && $user->hasAnyRole(['customer']),
-            default       => true, // allow 'auth' or fallback
+            default       => true,
         };
     }
 

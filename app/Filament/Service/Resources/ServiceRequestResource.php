@@ -19,6 +19,7 @@ use Filament\Resources\Resource;
 use Spatie\Permission\Models\Role;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Split;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Section;
@@ -497,6 +498,12 @@ class ServiceRequestResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = Auth::user();
+                return match (true) {
+                    $user->hasRole('mechanic') => $query->where('mechanic_id', $user->id),
+                };
+            })
             ->deferLoading()
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make()

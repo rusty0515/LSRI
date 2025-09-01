@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
+use Filament\Pages\SubNavigationPosition;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Wizard\Step;
@@ -51,9 +52,11 @@ class ServiceRequestResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
 
-     protected static ?string $navigationGroup = 'Services';
+    protected static ?string $navigationGroup = 'Services';
 
     protected static ?int $navigationSort = 0;
+
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     public static function form(Form $form): Form
     {
@@ -278,7 +281,9 @@ class ServiceRequestResource extends Resource
                                     ->native(false)
                                     ->required()
                                     ->prefixIcon('heroicon-o-calendar')
-                                    ->minDate(today())  // Prevents selecting past dates
+                                    ->rules([
+                                        fn ($context, $record) => $context === 'create' ? 'after_or_equal:today' : '',
+                                    ])
                                     ->default(today())  // Sets current date as default
                                     ->disabled()
                                     ->dehydrated(),
@@ -286,7 +291,10 @@ class ServiceRequestResource extends Resource
                                     ->native(false)
                                     ->required()
                                     ->prefixIcon('heroicon-o-calendar-date-range')
-                                    ->minDate(today())
+                                    ->rules([
+                                        fn ($context, $record) => $context === 'create' ? 'after_or_equal:today' : '',
+                                        'before_or_equal:' . today()->addYears(3)->format('Y-m-d'),
+                                    ])
                                     ->maxDate(today()->addYears(3))
                                     ->dehydrated(),
 
@@ -524,6 +532,7 @@ class ServiceRequestResource extends Resource
             'index' => Pages\ListServiceRequests::route('/'),
             'create' => Pages\CreateServiceRequest::route('/create'),
             'edit' => Pages\EditServiceRequest::route('/{record}/edit'),
+            'view' => Pages\ViewServiceRequest::route('/{record}'),
         ];
     }
 
@@ -533,6 +542,14 @@ class ServiceRequestResource extends Resource
         $numeric = str_pad(random_int(0, pow(10, 2) - 1), 2, '0', STR_PAD_LEFT);
 
          return 'SRV-NUM-' . str_shuffle($alpha . $numeric);
+    }
+
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        return $page->generateNavigationItems([
+            Pages\ViewServiceRequest::class,
+            Pages\EditServiceRequest::class,
+        ]);
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -547,21 +564,42 @@ class ServiceRequestResource extends Resource
                     ->schema([
 
                         TextEntry::make('service.service_name')
-                        ->label('Service Name')
+                        ->label('')
                         ->weight(FontWeight::ExtraBold)
-                        ->icon('heroicon-m-wrench-screwdriver')
-                        ->color('primary'),
+                        ->size(TextEntry\TextEntrySize::Large)
+                        ->icon('heroicon-m-cog')
+                        ->color('primary')
+                        ->columnSpan([
+                            'sm' => 5,
+                            'md' => 5,
+                            'lg' => 3
+                        ]),
 
                         TextEntry::make('service.service_price')
                         ->label('Service Price')
                         ->weight(FontWeight::ExtraBold)
                         ->money('PHP')
                         ->badge()
-                        ->color('success'),
+                        ->color('success')
+                        ->columnSpan([
+                            'sm' => 5,
+                            'md' => 3,
+                            'lg' => 1
+                        ]),
+
+                        TextEntry::make('service.service_standard_labor')
+                        ->label('Labor')
+                        ->money('PHP')
+                        ->color('primary')
+                        ->columnSpan([
+                            'sm' => 5,
+                            'md' => 2,
+                            'lg' => 1
+                        ]),
                     ])
                     ->columns([
                         'sm' => 1,
-                        'md' => 2,
+                        'md' => 5,
                     ])
                 ])
                 ->columnSpan([
@@ -575,15 +613,15 @@ class ServiceRequestResource extends Resource
 
                     TextEntry::make('service_number')
                     ->label('Service Number')
-                    ->size(TextEntry\TextEntrySize::Large)
                     ->weight(FontWeight::ExtraBold)
-                    ->color('primary')
-                    ->icon('heroicon-o-hashtag'),
+                    ->icon('heroicon-o-hashtag')
+                    ->copyable(),
 
                     TextEntry::make('customer.name')
                     ->label('Customer Name')
                     ->size(TextEntry\TextEntrySize::Large)
                     ->icon('heroicon-o-user')
+                    ->color('danger')
                     ->weight(FontWeight::ExtraBold),
 
                     TextEntry::make('status')
@@ -628,7 +666,6 @@ class ServiceRequestResource extends Resource
                 'sm' => 1,
                 'md' => 6,
                 'lg' => 6
-            ])
-            ;
+            ]);
     }
 }

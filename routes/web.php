@@ -7,6 +7,7 @@ use App\Livewire\Pages\Services;
 use App\Livewire\Pages\ShopPage;
 use App\Livewire\Pages\AboutPage;
 use App\Livewire\Pages\ContactPage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Pages\BlogPageSingle;
 use App\Livewire\Pages\ShopPageSingle;
@@ -29,6 +30,22 @@ Route::get('/shop/categories/{prod_cat_slug}', ProductCategorieArchive::class)->
 
 Route::get('/services', Services::class)->name('page.services');
 Route::get('/checkout', Checkout::class)->name('page.checkout');
+
+// In your web.php
+Route::post('/logout', function () {
+    // Logout from main app
+    Auth::logout();
+
+    // Also logout from Filament if using same users
+    if (class_exists(\Filament\Facades\Filament::class)) {
+        \Filament\Facades\Filament::auth()->logout();
+    }
+
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect('/');
+})->middleware('auth')->name('logout');
 
 Route::middleware(['customer.role'])->group(function () {
     Route::get('/customer-dashboard', CustomerDashboard::class)->name('page.customer-dashboard');

@@ -1,6 +1,5 @@
 import './bootstrap';
 import 'preline'
-
 // This code should be added to <head>.
 // It's used to prevent page load glitches.
 const html = document.querySelector('html');

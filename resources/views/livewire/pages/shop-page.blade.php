@@ -16,11 +16,11 @@
                 aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
 
                 <svg class="size-4" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
                 </svg>
-                Sort
+                {{ $this->getCurrentSortLabel() }}
                 <svg class="hs-dropdown-open:rotate-180 size-4" xmlns="http://www.w3.org/2000/svg" width="24"
                     height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -31,34 +31,33 @@
             <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg mt-2 dark:bg-neutral-800 dark:border dark:border-neutral-700 dark:divide-neutral-700 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
                 role="menu" aria-orientation="vertical" aria-labelledby="hs-dropdown-hover-event">
                 <div class="p-1 space-y-0.5">
-                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700"
-                        href="#">
+                    <button wire:click="setSortBy('latest')"
+                        class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700 {{ $sortBy === 'latest' ? 'bg-gray-100 dark:bg-neutral-700' : '' }}">
                         Latest
-                    </a>
-                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700"
-                        href="#">
+                    </button>
+                    <button wire:click="setSortBy('oldest')"
+                        class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700 {{ $sortBy === 'oldest' ? 'bg-gray-100 dark:bg-neutral-700' : '' }}">
                         Oldest
-                    </a>
-                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700"
-                        href="#">
+                    </button>
+                    <button wire:click="setSortBy('popular')"
+                        class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700 {{ $sortBy === 'popular' ? 'bg-gray-100 dark:bg-neutral-700' : '' }}">
                         Popular
-                    </a>
-                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700"
-                        href="#">
+                    </button>
+                    <button wire:click="setSortBy('cheaper')"
+                        class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700 {{ $sortBy === 'cheaper' ? 'bg-gray-100 dark:bg-neutral-700' : '' }}">
                         Cheaper
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
         <!-- End Sort menu -->
-
 
         <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-5">
             <div class="col-span-5 md:col-span-4">
                 <!-- Grid -->
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-8">
 
-                    @forelse ($products as $product )
+                    @forelse ($this->products as $product )
 
                     <!-- Card -->
                     <div wire:key="card-product-{{ $product->id . '' . $product->prod_sku }}"

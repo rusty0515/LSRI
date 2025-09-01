@@ -39,6 +39,12 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
             $table->index(['prod_name', 'prod_slug', 'prod_sku']);
+            $table->index(['is_visible', 'is_featured']); // For featured products query
+            $table->index(['is_visible', 'created_at']); // For new products query
+            $table->index(['brand_id', 'is_visible']); // For brand filtering
+            $table->index('is_visible'); // Most important - used in all queries
+            $table->index('is_featured');
+            $table->index('created_at');
         });
     }
 

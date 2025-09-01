@@ -67,6 +67,7 @@ class ServicePanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->databaseNotifications()
             ->authMiddleware([
                 PanelRoleMiddleware::class
             ])

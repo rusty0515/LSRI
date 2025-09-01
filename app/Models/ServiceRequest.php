@@ -51,9 +51,4 @@ class ServiceRequest extends Model
         return $this->hasOne(ServiceRating::class);
     }
 
-    // public function serviceRequestItems() : HasMany
-    // {
-    //     return $this->hasMany(ServiceRequestItem::class, 'service_request_id', 'id');
-    // }
-
 }
