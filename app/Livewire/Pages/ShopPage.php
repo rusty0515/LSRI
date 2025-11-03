@@ -171,7 +171,7 @@ class ShopPage extends Component
     #[Title('Shop')]
     public function render()
     {
-        dd($this->products, $this->stats);
+       // dd($this->products, $this->stats);
         return view('livewire.pages.shop-page');
     }
 }
