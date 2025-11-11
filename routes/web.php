@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Pages\BlogPageSingle;
 use App\Livewire\Pages\ShopPageSingle;
 use App\Livewire\Pages\CustomerDashboard;
+use App\Http\Controllers\PaymentController;
 use App\Livewire\Pages\ProductCategorieArchive;
 
 Route::get('/', HomePage::class)->name('page.home');
@@ -50,3 +51,5 @@ Route::post('/logout', function () {
 Route::middleware(['customer.role'])->group(function () {
     Route::get('/customer-dashboard', CustomerDashboard::class)->name('page.customer-dashboard');
 });
+
+Route::get('/callback', [PaymentController::class, 'paymentCallback'])->name('callback');

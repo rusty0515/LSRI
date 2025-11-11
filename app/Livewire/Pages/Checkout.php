@@ -14,6 +14,7 @@ use Livewire\Attributes\Layout;
 use App\Enums\PaymentMethodEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Luigel\Paymongo\Facades\Paymongo;
 use App\Livewire\Traits\HasRemoveItem;
 use App\Livewire\Traits\HasAlertNotification;
 
@@ -36,10 +37,13 @@ class Checkout extends Component
     public $expiration_year = '';
     public $cvv = '';
 
-    public $paymentIntent = null;
-    public $paymentIntent_id;
-    public $paymentMethod;
-    public $createPaymentIntent;
+    // Remove complex objects from public properties
+    public $paymentIntent_id = '';
+
+    // Make these protected instead of public
+    protected $paymentIntent;
+    protected $paymentMethod;
+    protected $createPaymentIntent;
 
     #[On('checkout-updated')]
     public function mount()
@@ -104,18 +108,24 @@ class Checkout extends Component
         }
 
         try {
+            // For COD payments - handle separately without transaction
+            if ($this->customer_payment_method === 'cod') {
+                return $this->handleCODOrder($paymentMethod);
+            }
+
+            // For online payments - use transaction
             DB::transaction(function () use ($paymentMethod) {
                 // Generate unique order number
-                $orderNumber = '#ORDER-'. date('His-') . strtoupper(Str::random(6));
+                $orderNumber = '#ORDER-' . date('His-') . strtoupper(Str::random(6));
 
-                // Create the order
+                // Create the order first with pending payment status
                 $order = Order::create([
                     'user_id' => Auth::id(),
                     'order_number' => $orderNumber,
                     'order_total_price' => $this->total,
                     'order_status' => OrderStatusEnum::New->value,
-                    'shipping_price' => 0, 
-                    'distance_in_km' => 0, 
+                    'shipping_price' => 0,
+                    'distance_in_km' => 0,
                     'payment_method' => $paymentMethod->value,
                     'payment_status' => 'pending',
                     'payment_reference' => $this->generatePaymentReference($paymentMethod),
@@ -132,25 +142,59 @@ class Checkout extends Component
                             'product_id' => $productId,
                             'quantity' => $item['quantity'],
                             'unit_price' => $item['price'],
-                            'subtotal' => $this->sub_total, 
+                            'subtotal' => $item['price'] * $item['quantity'],
                         ]);
-
-                        // Update product stock if you have stock management
-                        // $product->decrement('stock', $item['quantity']);
                     }
                 }
 
-                // Clear the cart after successful order
-                session()->forget('cart');
-                $this->cart = [];
+                // Handle online payments
+                if (in_array($this->customer_payment_method, ['gcash', 'paymaya', 'grab_pay', 'card'])) {
+                    // Create payment intent
+                    $this->paymentCreateIntent($this->total);
+
+                    // Create payment method
+                    $this->paymentCreateMethod();
+
+                    // Update order with payment intent ID
+                    $order->update([
+                        'payment_intent_id' => $this->paymentIntent_id
+                    ]);
+
+                    // Attach payment method to payment intent
+                    $attachedPaymentIntent = $this->createPaymentIntent->attach($this->paymentMethod->id, route('callback'));
+
+                    // For redirect-based payments (gcash, paymaya, grab_pay)
+                    if (isset($attachedPaymentIntent->next_action['redirect']['url'])) {
+                        DB::commit();
+
+                        // Clear the cart before redirect
+                        session()->forget('cart');
+                        $this->cart = [];
+
+                        // Redirect to Paymongo payment page
+                        return redirect()->away($attachedPaymentIntent->next_action['redirect']['url']);
+                    }
+
+                    // For direct card payments that succeed immediately
+                    if ($attachedPaymentIntent->status === 'succeeded') {
+                        $order->update(['payment_status' => 'completed']);
+
+                        // Clear the cart after successful payment
+                        session()->forget('cart');
+                        $this->cart = [];
+
+                        DB::commit();
+
+                        $this->notify('Order placed successfully!', 'success', 5000);
+                        return redirect()->route('page.customer-dashboard')->with('success', 'Order placed successfully!');
+                    } else {
+                        // Payment failed or requires authentication
+                        throw new \Exception('Payment processing failed with status: ' . $attachedPaymentIntent->status);
+                    }
+                }
             });
-
-            // Show success message
-            $this->notify('Order placed successfully!', 'success', 5000);
-
-            // Redirect to order confirmation or dashboard
-            return redirect()->route('page.customer-dashboard')->with('success', 'Order placed successfully!');
         } catch (\Exception $e) {
+            DB::rollBack();
             \Log::error('Checkout error: ' . $e->getMessage());
             $this->notify('Failed to place order. Please try again.', 'error', 5000);
             return;
@@ -164,6 +208,55 @@ class Checkout extends Component
             'card' => PaymentMethodEnum::CREDIT_CARD,
             default => PaymentMethodEnum::COD,
         };
+    }
+
+    public function paymentCreateMethod()
+    {
+        if (in_array($this->customer_payment_method, ['gcash', 'paymaya', 'grab_pay'])) {
+            $this->paymentMethod = Paymongo::paymentMethod()->create([
+                'type' => $this->customer_payment_method,
+                'amount' => $this->total * 100, // Convert to centavos
+                'currency' => 'PHP',
+            ]);
+        }
+
+        // Card logic
+        if ($this->customer_payment_method === 'card') {
+            $cardNumber = preg_replace('/[^0-9]/', '', $this->card_number);
+            $this->paymentMethod = Paymongo::paymentMethod()->create([
+                'type' => 'card',
+                'details' => [
+                    'card_number' => (string)$cardNumber,
+                    'exp_month' => (int)$this->expiration_month,
+                    'exp_year' => (int)$this->expiration_year,
+                    'cvc' => $this->cvv,
+                ],
+                'billing' => [
+                    'email' => Auth::user()->email,
+                    'name' => $this->card_name,
+                ],
+            ]);
+        }
+    }
+
+    // Update paymentCreateIntent to use the correct amount format
+    public function paymentCreateIntent($amount)
+    {
+         $paymentIntent = Paymongo::paymentIntent()->create([
+            'amount' => $amount,
+            'payment_method_allowed' => [
+                'card',
+                'paymaya',
+                'grab_pay',
+                'gcash',
+            ],
+            'currency' => 'PHP',
+            'description' => 'LSRI Shopping Order',
+            'statement_descriptor' => 'LSRI SHOPPING',
+        ]);
+
+        $this->paymentIntent_id = $paymentIntent->id;
+        $this->createPaymentIntent = $paymentIntent;
     }
 
     protected function validateCardDetails()
@@ -289,6 +382,61 @@ class Checkout extends Component
         }
 
         return $originalPrice;
+    }
+
+
+
+
+    protected function handleCODOrder($paymentMethod)
+    {
+        try {
+            DB::transaction(function () use ($paymentMethod) {
+                // Generate unique order number
+                $orderNumber = '#ORDER-' . date('His-') . strtoupper(Str::random(6));
+
+                // Create the order
+                $order = Order::create([
+                    'user_id' => Auth::id(),
+                    'order_number' => $orderNumber,
+                    'order_total_price' => $this->total,
+                    'order_status' => OrderStatusEnum::New->value,
+                    'shipping_price' => 0,
+                    'distance_in_km' => 0,
+                    'payment_method' => $paymentMethod->value,
+                    'payment_status' => 'pending',
+                    'payment_reference' => $this->generatePaymentReference($paymentMethod),
+                    'order_notes' => '',
+                ]);
+
+                // Create order items
+                foreach ($this->cart as $productId => $item) {
+                    $product = Product::find($productId);
+
+                    if ($product) {
+                        OrderItem::create([
+                            'order_id' => $order->id,
+                            'product_id' => $productId,
+                            'quantity' => $item['quantity'],
+                            'unit_price' => $item['price'],
+                            'subtotal' => $item['price'] * $item['quantity'],
+                        ]);
+                    }
+                }
+
+                // Clear the cart after successful order
+                session()->forget('cart');
+                $this->cart = [];
+            });
+
+            // Show success message for COD
+            $this->notify('Order placed successfully!', 'success', 5000);
+            return redirect()->route('page.customer-dashboard')->with('success', 'Order placed successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('COD Order error: ' . $e->getMessage());
+            $this->notify('Failed to place order. Please try again.', 'error', 5000);
+            return;
+        }
     }
 
     #[Layout('layouts.app')]
