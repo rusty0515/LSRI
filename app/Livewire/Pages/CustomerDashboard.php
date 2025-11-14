@@ -5,31 +5,41 @@ namespace App\Livewire\Pages;
 use App\Models\Order;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
-<<<<<<< HEAD
 use Livewire\Attributes\Locked;
-=======
 use App\Models\ServiceRequest;
 use App\Models\Service;
 use App\Models\User;
-use App\Models\Order;
 use App\Enums\VehicleTypeEnum;
 use Carbon\Carbon;
->>>>>>> 73c46511ae66eddd587c80580bc16c0d9d95b0ae
 
-#[Layout('layouts.app')]
 class CustomerDashboard extends Component
 {
-<<<<<<< HEAD
-
     public $orders;
     public $order_status = 'new';
+    public $activeSegment = 'orders';
+    public $activeOrderTab = 'in_progress';
+    public $activeRequestTab = 'pending';
+    public $showRequestModal = false;
+    public $showOrderDetailsModal = false;
+    public $selectedOrder;
 
-    public function mount()
+    // Request form properties
+    public $selectedVehicleType = 'car';
+    public $selectedMechanic;
+    public $requestedDate;
+    public $scheduledDate;
+    public $message = '';
+    public $selectedServices = [];
+    public $vehicleBrand = '';
+    public $vehicleModel = '';
+
+    public $mechanics;
+    public $services;
+    public $serviceRequests;
+    public $vehicles;
+
+    public function updatedOrderStatus()
     {
-        $this->getOrders();
-    }
-
-    public function updatedOrderStatus(){
         $this->getOrders();
     }
 
@@ -44,30 +54,6 @@ class CustomerDashboard extends Component
             ->take(10)
             ->get();
     }
-
-
-    #[Layout('layouts.app')]
-=======
-    public $activeSegment = 'orders';
-    public $activeOrderTab = 'in_progress';
-    public $activeRequestTab = 'pending';
-    public $showRequestModal = false;
-    
-    // Request form properties
-    public $selectedVehicleType = 'car';
-    public $selectedMechanic;
-    public $requestedDate;
-    public $scheduledDate;
-    public $message = '';
-    public $selectedServices = [];
-    public $vehicleBrand = '';
-    public $vehicleModel = '';
-
-    public $mechanics;
-    public $services;
-    public $serviceRequests;
-    public $orders;
-    public $vehicles;
 
     protected $rules = [
         'selectedVehicleType' => 'required|in:car,motorcycle,other',
@@ -105,7 +91,7 @@ class CustomerDashboard extends Component
     public function loadMechanics()
     {
         $this->mechanics = User::whereHas('roles', fn($q) => $q->where('name', 'mechanic'))->get();
-        
+
         if ($this->mechanics->isEmpty()) {
             $this->mechanics = User::where('id', '!=', auth()->id())->limit(5)->get();
         }
@@ -120,6 +106,7 @@ class CustomerDashboard extends Component
     {
         $this->serviceRequests = ServiceRequest::where('user_id', auth()->id())
             ->when($this->activeRequestTab !== 'all', fn($q) => $q->where('status', $this->activeRequestTab))
+            ->take(10)
             ->latest()
             ->get();
     }
@@ -127,18 +114,19 @@ class CustomerDashboard extends Component
     public function loadOrders()
     {
         $this->orders = Order::where('user_id', auth()->id())
-            ->when($this->activeOrderTab !== 'all', function($q) {
+            ->when($this->activeOrderTab !== 'all', function ($q) {
                 $statusMap = [
                     'in_progress' => ['new', 'processing'],
                     'shipped' => ['shipped'],
                     'delivered' => ['delivered'],
                     'cancelled' => ['cancelled']
                 ];
-                
+
                 if (isset($statusMap[$this->activeOrderTab])) {
                     $q->whereIn('order_status', $statusMap[$this->activeOrderTab]);
                 }
             })
+            ->take(10)
             ->latest()
             ->get();
     }
@@ -169,7 +157,7 @@ class CustomerDashboard extends Component
     private function extractBrandModel($remarks)
     {
         if (!$remarks) return 'Not specified';
-        
+
         if (str_contains($remarks, 'Vehicle Details:')) {
             $lines = explode("\n", $remarks);
             foreach ($lines as $line) {
@@ -181,8 +169,39 @@ class CustomerDashboard extends Component
                 }
             }
         }
-        
+
         return 'Not specified';
+    }
+
+    // Order Details Modal
+    public function openOrderDetails($orderId)
+    {
+        $this->selectedOrder = Order::with('orderItems')->find($orderId);
+        $this->showOrderDetailsModal = true;
+    }
+
+    public function closeOrderDetailsModal()
+    {
+        $this->showOrderDetailsModal = false;
+        $this->selectedOrder = null;
+    }
+
+    public function cancelOrder($orderId)
+    {
+        try {
+            $order = Order::where('user_id', auth()->id())->findOrFail($orderId);
+            
+            if (in_array($order->order_status, ['new', 'processing'])) {
+                $order->update(['order_status' => 'cancelled']);
+                $this->loadOrders();
+                $this->closeOrderDetailsModal();
+                session()->flash('success', 'Order cancelled successfully.');
+            } else {
+                session()->flash('error', 'Cannot cancel this order.');
+            }
+        } catch (\Throwable $e) {
+            session()->flash('error', 'Failed to cancel order: ' . $e->getMessage());
+        }
     }
 
     // Segment and tab management
@@ -228,8 +247,14 @@ class CustomerDashboard extends Component
     public function resetRequestForm()
     {
         $this->reset([
-            'selectedVehicleType', 'selectedMechanic', 'requestedDate', 'scheduledDate',
-            'message', 'selectedServices', 'vehicleBrand', 'vehicleModel',
+            'selectedVehicleType',
+            'selectedMechanic',
+            'requestedDate',
+            'scheduledDate',
+            'message',
+            'selectedServices',
+            'vehicleBrand',
+            'vehicleModel',
         ]);
 
         $this->setDefaultDates();
@@ -277,12 +302,11 @@ class CustomerDashboard extends Component
 
             $this->showRequestModal = false;
             $this->resetRequestForm();
-            
+
             $this->loadServiceRequests();
             $this->loadVehicles();
 
             session()->flash('success', 'Service request submitted successfully!');
-
         } catch (\Exception $e) {
             session()->flash('error', 'Failed to submit service request: ' . $e->getMessage());
         }
@@ -312,7 +336,7 @@ class CustomerDashboard extends Component
                 ->where('vehicle_type', $vehicleType)
                 ->where('remarks', $remarks)
                 ->delete();
-                
+
             $this->loadVehicles();
             $this->loadServiceRequests();
             session()->flash('success', "Vehicle history deleted successfully. Removed {$deletedCount} service requests.");
@@ -321,7 +345,7 @@ class CustomerDashboard extends Component
         }
     }
 
->>>>>>> 73c46511ae66eddd587c80580bc16c0d9d95b0ae
+    #[Layout('layouts.app')]
     public function render()
     {
         return view('livewire.pages.customer-dashboard', [
