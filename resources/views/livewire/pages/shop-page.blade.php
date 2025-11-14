@@ -149,158 +149,109 @@
 
                 <div class="flex flex-col flex-[1_0_0%]">
                     {{-- CATEGORIES --}}
-                    <div class="p-4 flex-1 md:p-5 border-b border-gray-200 dark:border-neutral-700">
-                        <h3 class="text-sm font-bold text-gray-800 dark:text-white">
-                            {{ __('Category') }}
-                        </h3>
-                        <div class="flex flex-col gap-y-4 mt-5 md:mt-7">
-                            <div class="flex">
-                                <input type="checkbox"
-                                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
-                                    id="hs-checkbox-group-1">
-                                <label for="hs-checkbox-group-1"
-                                    class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Phone and smart
-                                    watches</label>
-                            </div>
-
-                            <div class="flex">
-                                <input type="checkbox"
-                                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
-                                    id="hs-checkbox-group-1">
-                                <label for="hs-checkbox-group-1"
-                                    class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Phone and smart
-                                    watches</label>
-                            </div>
-
-                            <div class="flex">
-                                <input type="checkbox"
-                                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
-                                    id="hs-checkbox-group-3">
-                                <label for="hs-checkbox-group-3"
-                                    class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Phone and smart
-                                    watches</label>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- END CATEGORIES --}}
-
+<div class="p-4 flex-1 md:p-5 border-b border-gray-200 dark:border-neutral-700">
+    <h3 class="text-sm font-bold text-gray-800 dark:text-white">
+        {{ __('Category') }}
+    </h3>
+    <div class="flex flex-col gap-y-4 mt-5 md:mt-7 max-h-60 overflow-y-auto">
+        @forelse($this->categories as $category)
+            <div class="flex items-center">
+                <input 
+                    type="checkbox" 
+                    wire:model.live="selectedCategories"
+                    value="{{ $category->id }}"
+                    id="category-{{ $category->id }}"
+                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
+                >
+                <label for="category-{{ $category->id }}" class="text-sm text-gray-500 ms-3 dark:text-neutral-400 flex justify-between w-full">
+                    <span>{{ $category->prod_cat_name }}</span>
+                    <span class="text-xs bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded-full">{{ $category->products_count }}</span>
+                </label>
+            </div>
+        @empty
+            <div class="text-sm text-gray-500 dark:text-neutral-400 text-center py-2">
+                No categories found
+            </div>
+        @endforelse
+    </div>
+</div>
+{{-- END CATEGORIES --}}
                     {{-- BRANDS --}}
-                    <div class="p-4 flex-1 md:p-5 border-b border-gray-200 dark:border-neutral-700">
-                        <h3 class="text-sm font-bold text-gray-800 dark:text-white">
-                            {{ __('Brands') }}
-                        </h3>
+<div class="p-4 flex-1 md:p-5 border-b border-gray-200 dark:border-neutral-700">
+    <h3 class="text-sm font-bold text-gray-800 dark:text-white">
+        {{ __('Brands') }}
+    </h3>
 
-                        <div class="max-w-sm mt-4">
-                            <!-- SearchBox -->
-                            <div class="relative" data-hs-combo-box='{
-                                "groupingType": "default",
-                                "isOpenOnFocus": true,
-                                "apiUrl": "../assets/data/searchbox.json",
-                                "apiGroupField": "category",
-                                "outputItemTemplate": "<div data-hs-combo-box-output-item><span class=\"flex items-center cursor-pointer py-2 px-4 w-full text-sm text-gray-800 hover:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-neutral-200\"><div class=\"flex items-center w-full\"><div class=\"flex items-center justify-center rounded-full bg-gray-200 size-6 overflow-hidden me-2.5\"><img class=\"shrink-0\" data-hs-combo-box-output-item-attr=&apos;[{\"valueFrom\": \"image\", \"attr\": \"src\"}, {\"valueFrom\": \"name\", \"attr\": \"alt\"}]&apos; /></div><div data-hs-combo-box-output-item-field=\"name\" data-hs-combo-box-value></div><div class=\"hidden\" data-hs-combo-box-output-item-field=&apos;[\"name\", \"category\"]&apos; data-hs-combo-box-search-text></div></div><span class=\"hidden hs-combo-box-selected:block\"><svg class=\"shrink-0 size-3.5 text-red-600 dark:text-red-500\" xmlns=\"http:.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg></span></span></div>",
-                                "groupingTitleTemplate": "<div class=\"text-xs uppercase text-gray-500 m-3 mb-1 dark:text-neutral-500\"></div>"
-                            }'>
-                                <div class="relative">
-                                    <div
-                                        class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
-                                        <svg class="shrink-0 size-4 text-gray-400 dark:text-white/60"
-                                            xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="11" cy="11" r="8"></circle>
-                                            <path d="m21 21-4.3-4.3"></path>
-                                        </svg>
-                                    </div>
-                                    <input
-                                        class="py-2.5 py-3 ps-10 pe-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-red-500 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-                                        type="text" role="combobox" aria-expanded="false" placeholder="Type a name"
-                                        value="" data-hs-combo-box-input="">
-                                </div>
+    <div class="max-w-sm mt-4">
+        <!-- SearchBox -->
+        <div class="relative">
+            <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
+                <svg class="shrink-0 size-4 text-gray-400 dark:text-white/60" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+            </div>
+            <input 
+                wire:model.live.debounce.300ms="brandSearch"
+                class="py-2.5 py-3 ps-10 pe-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-red-500 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" 
+                type="text" 
+                placeholder="Search brands..."
+            >
+        </div>
+    </div>
 
-                                <!-- SearchBox Dropdown -->
-                                <div class="absolute z-50 w-full bg-white border border-gray-200 rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
-                                    style="display: none;" data-hs-combo-box-output="">
-                                    <div class="max-h-72 rounded-b-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
-                                        data-hs-combo-box-output-items-wrapper=""></div>
-                                </div>
-                                <!-- End SearchBox Dropdown -->
-                            </div>
-                            <!-- End SearchBox -->
-                        </div>
-
-
-                        <div class="flex flex-col gap-y-4 mt-5 md:mt-7">
-                            <div class="flex">
-                                <input type="checkbox"
-                                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
-                                    id="hs-checkbox-group-1">
-                                <label for="hs-checkbox-group-1"
-                                    class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Phone and smart
-                                    watches</label>
-                            </div>
-
-                            <div class="flex">
-                                <input type="checkbox"
-                                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
-                                    id="hs-checkbox-group-1">
-                                <label for="hs-checkbox-group-1"
-                                    class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Phone and smart
-                                    watches</label>
-                            </div>
-
-                            <div class="flex">
-                                <input type="checkbox"
-                                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
-                                    id="hs-checkbox-group-3">
-                                <label for="hs-checkbox-group-3"
-                                    class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Phone and smart
-                                    watches</label>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- END BRANDS --}}
+    <div class="flex flex-col gap-y-4 mt-5 md:mt-7 max-h-60 overflow-y-auto">
+        @forelse($this->brands as $brand)
+            <div class="flex items-center">
+                <input 
+                    type="checkbox" 
+                    wire:model.live="selectedBrands"
+                    value="{{ $brand->id }}"
+                    id="brand-{{ $brand->id }}"
+                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
+                >
+                <label for="brand-{{ $brand->id }}" class="text-sm text-gray-500 ms-3 dark:text-neutral-400 flex justify-between w-full">
+                    <span>{{ $brand->brand_name }}</span>
+                    <span class="text-xs bg-gray-200 dark:bg-neutral-700 px-2 py-1 rounded-full">{{ $brand->products_count }}</span>
+                </label>
+            </div>
+        @empty
+            <div class="text-sm text-gray-500 dark:text-neutral-400 text-center py-2">
+                No brands found
+            </div>
+        @endforelse
+    </div>
+</div>
+{{-- END BRANDS --}}
 
                     {{-- PRICE RANGE --}}
-                    <div class="flex flex-col gap-y-4 mt-5 md:mt-7">
-                        <div class="flex">
-                            <label for="steps-range-slider-usage" class="sr-only">Example range</label>
-                            <input type="range" class="w-full bg-transparent cursor-pointer appearance-none disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden
-                            [&::-webkit-slider-thumb]:w-2.5
-                            [&::-webkit-slider-thumb]:h-2.5
-                            [&::-webkit-slider-thumb]:-mt-0.5
-                            [&::-webkit-slider-thumb]:appearance-none
-                            [&::-webkit-slider-thumb]:bg-white
-                            [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_rgba(37,99,235,1)]
-                            [&::-webkit-slider-thumb]:rounded-full
-                            [&::-webkit-slider-thumb]:transition-all
-                            [&::-webkit-slider-thumb]:duration-150
-                            [&::-webkit-slider-thumb]:ease-in-out
-                            dark:[&::-webkit-slider-thumb]:bg-neutral-700
-
-                            [&::-moz-range-thumb]:w-2.5
-                            [&::-moz-range-thumb]:h-2.5
-                            [&::-moz-range-thumb]:appearance-none
-                            [&::-moz-range-thumb]:bg-white
-                            [&::-moz-range-thumb]:border-4
-                            [&::-moz-range-thumb]:border-red-600
-                            [&::-moz-range-thumb]:rounded-full
-                            [&::-moz-range-thumb]:transition-all
-                            [&::-moz-range-thumb]:duration-150
-                            [&::-moz-range-thumb]:ease-in-out
-
-                            [&::-webkit-slider-runnable-track]:w-full
-                            [&::-webkit-slider-runnable-track]:h-2
-                            [&::-webkit-slider-runnable-track]:bg-gray-100
-                            [&::-webkit-slider-runnable-track]:rounded-full
-                            dark:[&::-webkit-slider-runnable-track]:bg-neutral-700
-
-                            [&::-moz-range-track]:w-full
-                            [&::-moz-range-track]:h-2
-                            [&::-moz-range-track]:bg-gray-100
-                            [&::-moz-range-track]:rounded-full" id="steps-range-slider-usage"
-                                aria-orientation="horizontal" min="0" max="5" step="1">
-                        </div>
-                    </div>
+                    {{-- PRICE RANGE --}}
+<div class="p-4 flex-1 md:p-5 border-b border-gray-200 dark:border-neutral-700">
+    <h3 class="text-sm font-bold text-gray-800 dark:text-white mb-4">
+        {{ __('Price Range') }}
+    </h3>
+    <div class="space-y-4">
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-500 dark:text-neutral-400">Max: ₱{{ number_format($priceRange, 2) }}</span>
+        </div>
+        <input 
+            type="range" 
+            wire:model.live="priceRange"
+            min="0" 
+            max="10000" 
+            step="100"
+            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700
+                   [&::-webkit-slider-thumb]:appearance-none
+                   [&::-webkit-slider-thumb]:h-4
+                   [&::-webkit-slider-thumb]:w-4
+                   [&::-webkit-slider-thumb]:rounded-full
+                   [&::-webkit-slider-thumb]:bg-red-600
+                   dark:[&::-webkit-slider-thumb]:bg-red-500"
+        >
+        <!--  -->
+    </div>
+</div>
+{{-- END PRICE RANGE --}}
                     {{-- END PRICE RANGE --}}
 
 
