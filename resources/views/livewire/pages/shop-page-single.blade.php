@@ -1,5 +1,4 @@
 <div>
-    {{-- @dd($product) --}}
     <!-- Card Blog -->
     <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-5 mx-auto">
         <div class="mt-5">
@@ -13,7 +12,6 @@
                 </svg>
                 {{ __('Back to Shop') }}
             </a>
-
 
             <div class="grid lg:grid-cols-3 gap-y-8 lg:gap-y-0 lg:gap-x-6">
                 <!-- Content -->
@@ -182,6 +180,121 @@
 
                             <div>
                                 {!! str($product->prod_long_desc)->sanitizeHtml() !!}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rating and Review Section -->
+                    <div class="py-8 lg:pe-8 border-t border-gray-200 dark:border-neutral-700">
+                        <div class="space-y-5 text-gray-500 lg:space-y-8 dark:text-white">
+                            <h2 class="text-lg font-bold lg:text-3xl dark:text-white">{{ __('Customer Reviews') }}</h2>
+                            
+                            <!-- Add Review Form -->
+                            <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 mb-8">
+                                <h3 class="text-xl font-semibold mb-4 dark:text-white">{{ __('Write a Review') }}</h3>
+                                
+                                <!-- Star Rating Input -->
+                                <div class="mb-4">
+    <label class="block text-sm font-medium mb-2 dark:text-white">{{ __('Your Rating') }}</label>
+    <div class="flex space-x-1" id="starRating">
+        @for($i = 1; $i <= 5; $i++)
+            <button type="button" 
+                    wire:click="$set('ratingStar', {{ $i }})"
+                    class="text-gray-300 hover:text-yellow-400 focus:outline-none transition-colors {{ $ratingStar >= $i ? 'text-yellow-400' : '' }}">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+            </button>
+        @endfor
+    </div>
+    @error('ratingStar') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+</div>
+                                
+                                <!-- Review Text Input -->
+                                <div class="mb-4">
+                                    <label for="reviewText" class="block text-sm font-medium mb-2 dark:text-white">{{ __('Your Review') }}</label>
+                                    <textarea id="reviewText" 
+                                              wire:model="reviewText"
+                                              rows="4" 
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white"
+                                              placeholder="{{ __('Share your experience with this product...') }}"></textarea>
+                                    @error('reviewText') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <!-- Image Upload (Optional) -->
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium mb-2 dark:text-white">{{ __('Add Photos (Optional)') }}</label>
+                                    <div class="flex items-center justify-center w-full">
+                                        <label for="ratingImages" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-neutral-700 hover:bg-gray-100 dark:border-neutral-600 dark:hover:border-gray-500 dark:hover:bg-neutral-600">
+                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                                </svg>
+                                                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">{{ __('Click to upload') }}</span> {{ __('or drag and drop') }}</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF (MAX. 5MB)</p>
+                                            </div>
+                                            <input id="ratingImages" type="file" class="hidden" wire:model="ratingImages" multiple />
+                                        </label>
+                                    </div>
+                                    @error('ratingImages') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <!-- Submit Button -->
+                                <button type="button" 
+                                        wire:click="submitReview"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                    {{ __('Submit Review') }}
+                                </button>
+                            </div>
+                            
+                            <!-- Reviews List -->
+                            <div class="space-y-6">
+                                <h3 class="text-xl font-semibold mb-4 dark:text-white">{{ __('Customer Reviews') }}</h3>
+                                
+                                @if($reviews && $reviews->count() > 0)
+                                    @foreach($reviews as $review)
+                                        <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6">
+                                            <div class="flex items-start justify-between mb-4">
+                                                <div>
+                                                    <h4 class="font-semibold text-gray-800 dark:text-white">{{ $review->user->name ?? 'Anonymous' }}</h4>
+                                                    <div class="flex items-center mt-1">
+                                                        <div class="flex">
+                                                            @for($i = 1; $i <= 5; $i++)
+                                                                <svg class="w-4 h-4 {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }} dark:{{ $i <= $review->rating ? 'text-yellow-600' : 'text-neutral-600' }}" 
+                                                                     fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                                </svg>
+                                                            @endfor
+                                                        </div>
+                                                        <span class="ml-2 text-sm text-gray-500 dark:text-neutral-400">{{ $review->created_at->format('M d, Y') }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <p class="text-gray-700 dark:text-neutral-300 mb-4">{{ $review->review }}</p>
+                                            
+                                            @if($review->ratingImages && $review->ratingImages->count() > 0)
+                                                <div class="flex space-x-2 mb-4">
+                                                    @foreach($review->ratingImages as $image)
+                                                        <img src="{{ asset(Storage::url($image->url)) }}" 
+                                                             alt="Review image" 
+                                                             class="w-20 h-20 object-cover rounded-md cursor-pointer"
+                                                             onclick="openImageModal('{{ asset(Storage::url($image->url)) }}')">
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                    
+                                    <!-- Pagination -->
+                                    <div class="mt-6">
+                                        {{ $reviews->links() }}
+                                    </div>
+                                @else
+                                    <div class="text-center py-8">
+                                        <p class="text-gray-500 dark:text-neutral-400">{{ __('No reviews yet. Be the first to review this product!') }}</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -406,10 +519,42 @@
                 {{ __('Back to Shop') }}
             </a>
 
-
-
         </div>
     </div>
     <!-- End Card Blog -->
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-75">
+        <div class="relative max-w-4xl max-h-full">
+            <button type="button" 
+                    class="absolute top-4 right-4 text-white hover:text-gray-300 focus:outline-none"
+                    onclick="closeImageModal()">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <img id="modalImage" src="" alt="Review image" class="max-w-full max-h-full object-contain">
+        </div>
+    </div>
+
 </div>
+
+<script>
+    function openImageModal(imageSrc) {
+        document.getElementById('modalImage').src = imageSrc;
+        document.getElementById('imageModal').classList.remove('hidden');
+        document.getElementById('imageModal').classList.add('flex');
+    }
+
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+        document.getElementById('imageModal').classList.remove('flex');
+    }
+
+    // Close modal when clicking outside the image
+    document.getElementById('imageModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeImageModal();
+        }
+    });
+</script>
