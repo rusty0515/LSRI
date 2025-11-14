@@ -4,8 +4,9 @@
         <!-- Title -->
         <div class="max-w-2xl mx-auto mb-10 text-center lg:mb-14">
             <h2 class="text-2xl font-bold md:text-4xl md:leading-tight dark:text-white">{{ __('Shop') }}</h2>
-            <p class="mt-1 text-gray-600 dark:text-neutral-400">{{ __('Lorem ipsum dolor sit amet consectetur,
-                adipisicing elit. Omnis, iste!') }}</p>
+            <p class="mt-1 text-gray-600 dark:text-neutral-400">
+                {{ __('Lorem ipsum dolor sit amet consectetur,
+                                adipisicing elit. Omnis, iste!') }}</p>
         </div>
         <!-- End Title -->
 
@@ -57,88 +58,87 @@
                 <!-- Grid -->
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-8">
 
-                    @forelse ($this->products as $product )
+                    @forelse ($this->products as $product)
+                        <!-- Card -->
+                        <div wire:key="card-product-{{ $product->id . '' . $product->prod_sku }}"
+                            class="flex flex-col mb-4 border shadow-sm bg-neutral-200 rounded-xl dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 dark:shadow-neutral-700/70 col-span-4 md:col-span-2">
 
-                    <!-- Card -->
-                    <div wire:key="card-product-{{ $product->id . '' . $product->prod_sku }}"
-                        class="flex flex-col mb-4 border shadow-sm bg-neutral-200 rounded-xl dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 dark:shadow-neutral-700/70 col-span-4 md:col-span-2">
+                            <a class="px-5 py-5" href="{{ route('page.shop.single', $product->prod_slug) }}">
+                                <div class="p-4 md:p-0 mb-4">
+                                    <small
+                                        class="inline-flex items-center gap-x-1.5 py-1 px-3 rounded-full text-xs  bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-500">
+                                        {{ $product->prod_sku }}
+                                    </small>
 
-                        <a class="px-5 py-5" href="{{ route('page.shop.single', $product->prod_slug) }}">
-                            <div class="p-4 md:p-0 mb-4">
-                                <small
-                                    class="inline-flex items-center gap-x-1.5 py-1 px-3 rounded-full text-xs  bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-500">
-                                    {{ $product->prod_sku }}
-                                </small>
+                                    <h5 class="text-sm font-bold text-gray-800 dark:text-white py-1.5">
+                                        {{ $product->prod_name }}
 
-                                <h5 class="text-sm font-bold text-gray-800 dark:text-white py-1.5">
-                                    {{ $product->prod_name }}
+                                        @if ($product->discount_badge_text)
+                                            {{-- Show discount badge --}}
+                                            <span
+                                                class="inline-block bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full ms-2">
+                                                {{ $product->discount_badge_text }}
+                                            </span>
+                                        @endif
+                                    </h5>
 
-                                    @if ($product->discount_badge_text)
-                                    {{-- Show discount badge --}}
-                                    <span
-                                        class="inline-block bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full ms-2">
-                                        {{ $product->discount_badge_text }}
-                                    </span>
-                                    @endif
-                                </h5>
+                                    <div class="flex flex-row justify-between align-middle items-center">
+                                        <p class="text-sm text-gray-500 dark:text-neutral-500">
+                                            4k+ sold
+                                            {{-- {{ $product->brand->brand_name }} --}}
+                                        </p>
 
-                                <div class="flex flex-row justify-between align-middle items-center">
-                                    <p class="text-sm text-gray-500 dark:text-neutral-500">
-                                        4k+ sold
-                                        {{-- {{ $product->brand->brand_name }}--}}
-                                    </p>
+                                        <div>
 
-                                    <div>
-
+                                        </div>
                                     </div>
+
+                                    <!-- GROUPS -->
+                                    <div class="flex flex-row items-center justify-between mt-3 align-middle">
+
+                                        @if ($product->has_discount)
+                                            {{-- Show prices --}}
+                                            <div>
+                                                <span
+                                                    class="text-neutral-400 line-through text-sm mr-2">₱{{ number_format($product->prod_price, 2) }}</span>
+                                                <span
+                                                    class="font-bold text-gray-500 dark:text-white">₱{{ number_format($product->discounted_price, 2) }}</span>
+                                            </div>
+                                        @else
+                                            {{-- No discount --}}
+                                            <div>
+                                                <span
+                                                    class="font-bold text-gray-500 dark:text-white">₱{{ number_format($product->prod_price, 2) }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <!-- EBD GROUP -->
+
                                 </div>
-
-                                <!-- GROUPS -->
-                                <div class="flex flex-row items-center justify-between mt-3 align-middle">
-
-                                    @if ($product->has_discount)
-
-                                    {{-- Show prices --}}
-                                    <div>
-                                        <span class="text-neutral-400 line-through text-sm mr-2">₱{{
-                                            number_format($product->prod_price, 2) }}</span>
-                                        <span class="font-bold text-gray-500 dark:text-white">₱{{
-                                            number_format($product->discounted_price, 2) }}</span>
-                                    </div>
-                                    @else
-                                    {{-- No discount --}}
-                                    <div>
-                                        <span class="font-bold text-gray-500 dark:text-white">₱{{
-                                            number_format($product->prod_price, 2) }}</span>
-                                    </div>
-                                    @endif
+                                <div class="aspect-4/4 overflow-hidden rounded-2xl">
+                                    <img class="size-full object-cover rounded-2xl"
+                                        src="{{ asset(Storage::url($product->prod_ft_image)) }}"
+                                        alt="{{ $product->prod_slug }}">
                                 </div>
-                                <!-- EBD GROUP -->
+                            </a>
 
-                            </div>
-                            <div class="aspect-4/4 overflow-hidden rounded-2xl">
-                                <img class="size-full object-cover rounded-2xl"
-                                    src="{{ asset(Storage::url($product->prod_ft_image)) }}"
-                                    alt="{{ $product->prod_slug }}">
-                            </div>
-                        </a>
-
-                    </div>
-                    <!-- End Card -->
+                        </div>
+                        <!-- End Card -->
 
                     @empty
-                    <div class="container w-full mx-auto text-center col-span-full">
+                        <div class="container w-full mx-auto text-center col-span-full">
 
-                        <svg class="flex items-center justify-center flex-shrink-0 w-auto mx-auto text-red-500 align-middle h-14"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                        </svg>
+                            <svg class="flex items-center justify-center flex-shrink-0 w-auto mx-auto text-red-500 align-middle h-14"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                            </svg>
 
-                        <h1 class="mt-4 text-2xl text-gray-800 dark:text-white">{{ __('No Products Created') }}</h1>
+                            <h1 class="mt-4 text-2xl text-gray-800 dark:text-white">{{ __('No Products Created') }}
+                            </h1>
 
-                    </div>
+                        </div>
                     @endforelse
 
                 </div>
@@ -154,15 +154,19 @@
                             {{ __('Category') }}
                         </h3>
                         <div class="flex flex-col gap-y-4 mt-5 md:mt-7">
-                            <div class="flex">
-                                <input type="checkbox"
-                                    class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
-                                    id="hs-checkbox-group-1">
-                                <label for="hs-checkbox-group-1"
-                                    class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Phone and smart
-                                    watches</label>
-                            </div>
-
+                            @foreach ($this->categories as $category)
+                                <div class="flex">
+                                    <input type="checkbox" wire:model.live="selectedCategories"
+                                        value="{{ $category->id }}"
+                                        class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
+                                        id="category-{{ $category->id }}">
+                                    <label for="category-{{ $category->id }}"
+                                        class="text-sm text-gray-500 ms-3 dark:text-neutral-400">
+                                        {{ $category->prod_cat_name }}  {{ $category->products_count }}
+                                    </label>
+                                </div>
+                            @endforeach 
+                            {{-- 
                             <div class="flex">
                                 <input type="checkbox"
                                     class="shrink-0 mt-0.5 p-2 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 checked:border-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800"
@@ -179,7 +183,7 @@
                                 <label for="hs-checkbox-group-3"
                                     class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Phone and smart
                                     watches</label>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                     {{-- END CATEGORIES --}}
@@ -192,7 +196,8 @@
 
                         <div class="max-w-sm mt-4">
                             <!-- SearchBox -->
-                            <div class="relative" data-hs-combo-box='{
+                            <div class="relative"
+                                data-hs-combo-box='{
                                 "groupingType": "default",
                                 "isOpenOnFocus": true,
                                 "apiUrl": "../assets/data/searchbox.json",
@@ -205,16 +210,16 @@
                                         class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
                                         <svg class="shrink-0 size-4 text-gray-400 dark:text-white/60"
                                             xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="11" cy="11" r="8"></circle>
                                             <path d="m21 21-4.3-4.3"></path>
                                         </svg>
                                     </div>
                                     <input
                                         class="py-2.5 py-3 ps-10 pe-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-red-500 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-                                        type="text" role="combobox" aria-expanded="false" placeholder="Type a name"
-                                        value="" data-hs-combo-box-input="">
+                                        type="text" role="combobox" aria-expanded="false"
+                                        placeholder="Type a name" value="" data-hs-combo-box-input="">
                                 </div>
 
                                 <!-- SearchBox Dropdown -->
@@ -264,7 +269,8 @@
                     <div class="flex flex-col gap-y-4 mt-5 md:mt-7">
                         <div class="flex">
                             <label for="steps-range-slider-usage" class="sr-only">Example range</label>
-                            <input type="range" class="w-full bg-transparent cursor-pointer appearance-none disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden
+                            <input type="range"
+                                class="w-full bg-transparent cursor-pointer appearance-none disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden
                             [&::-webkit-slider-thumb]:w-2.5
                             [&::-webkit-slider-thumb]:h-2.5
                             [&::-webkit-slider-thumb]:-mt-0.5
@@ -297,8 +303,9 @@
                             [&::-moz-range-track]:w-full
                             [&::-moz-range-track]:h-2
                             [&::-moz-range-track]:bg-gray-100
-                            [&::-moz-range-track]:rounded-full" id="steps-range-slider-usage"
-                                aria-orientation="horizontal" min="0" max="5" step="1">
+                            [&::-moz-range-track]:rounded-full"
+                                id="steps-range-slider-usage" aria-orientation="horizontal" min="0"
+                                max="5" step="1">
                         </div>
                     </div>
                     {{-- END PRICE RANGE --}}

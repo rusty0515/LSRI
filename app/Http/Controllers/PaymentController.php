@@ -38,7 +38,7 @@ class PaymentController extends Controller
                         'sub_total',
                     ]);
 
-                    return redirect()->route('page.shop')->with('message', 'Product ordered successfully');
+                    return redirect()->route('page.customer-dashboard')->with('message', 'Product ordered successfully');
                 }
             } catch (\Exception $e) {
                 // Log error
@@ -46,6 +46,6 @@ class PaymentController extends Controller
             }
         }
 
-        return redirect()->route('page.shop');
+        return redirect()->route('page.customer-dashboard');
     }
 }

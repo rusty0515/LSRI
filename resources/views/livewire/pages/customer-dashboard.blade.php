@@ -63,8 +63,7 @@
 
                     <a href="{{ route('page.checkout') }}"
                         class="hs-tab-active:bg-white hs-tab-active:text-gray-700 hs-tab-active:dark:bg-neutral-800 hs-tab-active:dark:text-neutral-400 dark:hs-tab-active:bg-gray-800 py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm text-gray-500 hover:text-gray-700 focus:outline-hidden focus:text-gray-700 font-medium rounded-lg hover:hover:text-neutral-800 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:text-white dark:focus:text-white"
-                        id="segment-item-4" aria-selected="false"
-                        role="tab">
+                        id="segment-item-4" aria-selected="false" role="tab">
 
                         <svg class="size-6 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -105,10 +104,11 @@
                 <!--Order Tab-->
                 <div class="flex">
                     <div class="border-e-2 border-gray-200 dark:border-neutral-700">
-                        <nav class="flex flex-col space-y-2 md:space-y-4 lg:space-y-5" aria-label="Tabs" role="tablist"
-                            aria-orientation="vertical">
+                        <nav class="flex flex-col space-y-2 md:space-y-4 lg:space-y-5" aria-label="Tabs"
+                            role="tablist" aria-orientation="vertical">
 
                             <button type="button"
+                                wire:click="$set('order_status','new')"
                                 class="hs-tab-active:border-red-500 hs-tab-active:text-red-600 dark:hs-tab-active:text-red-600 py-1 pe-4 inline-flex items-center gap-x-2 border-e-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-red-600 focus:outline-hidden focus:text-red-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:text-red-500 active"
                                 id="vertical-tab-with-border-item-1" aria-selected="true"
                                 data-hs-tab="#order-vertical-tab-with-border-1"
@@ -123,6 +123,7 @@
                                 {{ __('In Progress') }}
                             </button>
                             <button type="button"
+                                 wire:click="$set('order_status','shipped')"
                                 class="hs-tab-active:border-amber-500 hs-tab-active:text-amber-600 dark:hs-tab-active:text-amber-600 py-1 pe-4 inline-flex items-center gap-x-2 border-e-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-amber-600 focus:outline-hidden focus:text-amber-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:text-amber-500"
                                 id="vertical-tab-with-border-item-2" aria-selected="false"
                                 data-hs-tab="#order-vertical-tab-with-border-2"
@@ -136,6 +137,7 @@
                                 {{ __('Shipped') }}
                             </button>
                             <button type="button"
+                                 wire:click="$set('order_status','delivered')"
                                 class="hs-tab-active:border-green-500 hs-tab-active:text-green-600 dark:hs-tab-active:text-green-600 py-1 pe-4 inline-flex items-center gap-x-2 border-e-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-green-600 focus:outline-hidden focus:text-green-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:text-green-500"
                                 id="vertical-tab-with-border-item-3" aria-selected="false"
                                 data-hs-tab="#order-vertical-tab-with-border-3"
@@ -149,6 +151,7 @@
                                 {{ __('Delivered') }}
                             </button>
                             <button type="button"
+                                wire:click="$set('order_status','cancelled')"
                                 class="hs-tab-active:border-red-500 hs-tab-active:text-red-600 dark:hs-tab-active:text-red-600 py-1 pe-4 inline-flex items-center gap-x-2 border-e-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-red-600 focus:outline-hidden focus:text-red-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:text-red-500"
                                 id="vertical-tab-with-border-item-3" aria-selected="false"
                                 data-hs-tab="#order-vertical-tab-with-border-3"
@@ -167,7 +170,6 @@
                     <div class="ms-3 w-full">
                         <div id="order-vertical-tab-with-border-1" class="w-full" role="tabpanel"
                             aria-labelledby="vertical-tab-with-border-item-1">
-
                             <div class="flex flex-col">
                                 <div class="-m-1.5 overflow-x-auto">
                                     <div class="p-1.5 min-w-full inline-block align-middle">
@@ -178,35 +180,42 @@
                                                     <tr>
                                                         <th scope="col"
                                                             class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
-                                                            Name</th>
+                                                            Order Number</th>
                                                         <th scope="col"
                                                             class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
-                                                            Age</th>
+                                                            Items</th>
                                                         <th scope="col"
                                                             class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
-                                                            Address</th>
+                                                            Total</th>
                                                         <th scope="col"
                                                             class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
                                                             Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                                    <tr>
-                                                        <td
-                                                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
-                                                            John Brown</td>
-                                                        <td
-                                                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                                                            45</td>
-                                                        <td
-                                                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                                                            New York No. 1 Lake Park</td>
-                                                        <td
-                                                            class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                                            <button type="button"
-                                                                class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-800 focus:outline-hidden focus:text-red-800 disabled:opacity-50 disabled:pointer-events-none dark:text-red-500 dark:hover:text-red-400 dark:focus:text-red-400">Delete</button>
-                                                        </td>
-                                                    </tr>
+
+                                                    @foreach ($orders as $order)
+                                                        <tr>
+                                                            <td
+                                                                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
+                                                                {{ $order->order_number }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                    {{-- <td
+                                                                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
+                                                                John Brown</td>
+                                                            <td
+                                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                                                45</td>
+                                                            <td
+                                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                                                New York No. 1 Lake Park</td>
+                                                            <td
+                                                                class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                                                <button type="button"
+                                                                    class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-800 focus:outline-hidden focus:text-red-800 disabled:opacity-50 disabled:pointer-events-none dark:text-red-500 dark:hover:text-red-400 dark:focus:text-red-400">Delete</button>
+                                                            </td>
+                                                    
 
                                                     <tr>
                                                         <td
@@ -239,7 +248,7 @@
                                                             class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                                             <button type="button"
                                                                 class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-800 focus:outline-hidden focus:text-red-800 disabled:opacity-50 disabled:pointer-events-none dark:text-red-500 dark:hover:text-red-400 dark:focus:text-red-400">Delete</button>
-                                                        </td>
+                                                        </td> --}}
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -743,7 +752,8 @@
                                         <label for="scheduled-date-input"
                                             class="block text-sm font-medium mb-2 dark:text-white">{{ __('Scheduled Date') }}</label>
                                         <div class="relative">
-                                            <input type="date" id="scheduled-date-input" name="scheduled-date-input"
+                                            <input type="date" id="scheduled-date-input"
+                                                name="scheduled-date-input"
                                                 class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:z-10 focus:border-red-500 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                                                 placeholder="Select date">
 

@@ -169,14 +169,14 @@ class OrderResource extends Resource
                         ->optionsLimit(6)
                         ->native(false)
                         ->searchable()
-                        ->relationship(
-                            name: 'user',
-                            ignoreRecord: true,
-                            modifyQueryUsing: fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'customer')),
-                        )
+                        // ->relationship(
+                        //     name: 'user',
+                        //     ignoreRecord: true,
+                        //     modifyQueryUsing: fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'customer')),
+                        // )
                         ->getOptionLabelFromRecordUsing(fn ($record) => ucwords($record->name)),
 
-                    ToggleButtons::make('shipping_method')
+                    ToggleButtons::make('payment_method')
                         ->label('Shipping Method')
                         ->options(PaymentMethodEnum::class)
                         ->inline()
