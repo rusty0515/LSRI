@@ -23,7 +23,7 @@ class PaymentController extends Controller
                     $newStatus = 'failed'; // default
 
                     if ($status === 'succeeded') {
-                        $newStatus = 'completed';
+                        $newStatus = 'paid';
                       
                     } elseif (in_array($status, ['awaiting_payment', 'processing'])) {
                         $newStatus = 'pending';

@@ -297,6 +297,7 @@ class Checkout extends Component
                             'subtotal' => $this->sub_total,
                         ]);
                     }
+                    $this->reduceProductStock($product, $item['quantity']);
                 }
 
                 // Handle online payments
@@ -692,6 +693,7 @@ class Checkout extends Component
                             'subtotal' => $item['price'] * $item['quantity'],
                         ]);
                     }
+                    $this->reduceProductStock($product, $item['quantity']);
                 }
 
                 // Clear the cart after successful order
@@ -862,4 +864,15 @@ class Checkout extends Component
         // Fallback: if city not found in our list, use default Region VI pricing
         return ['distance' => 80, 'price' => 80];
     }
+
+
+     /**
+     * Reduce product stock after successful order
+     */
+    protected function reduceProductStock(Product $product, int $quantity): void
+    {
+        $product->decrement('prod_security_stock', $quantity);
+        
+    }
+    
 }

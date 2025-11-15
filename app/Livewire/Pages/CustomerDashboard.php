@@ -2,15 +2,17 @@
 
 namespace App\Livewire\Pages;
 
+use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\Service;
 use Livewire\Component;
+use App\Enums\VehicleTypeEnum;
+use App\Models\ServiceRequest;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
-use App\Models\ServiceRequest;
-use App\Models\Service;
-use App\Models\User;
-use App\Enums\VehicleTypeEnum;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CustomerDashboard extends Component
 {
@@ -189,16 +191,19 @@ class CustomerDashboard extends Component
     public function cancelOrder($orderId)
     {
         try {
-            $order = Order::where('user_id', auth()->id())->findOrFail($orderId);
-            
-            if (in_array($order->order_status, ['new', 'processing'])) {
-                $order->update(['order_status' => 'cancelled']);
-                $this->loadOrders();
-                $this->closeOrderDetailsModal();
-                session()->flash('success', 'Order cancelled successfully.');
-            } else {
-                session()->flash('error', 'Cannot cancel this order.');
-            }
+            DB::transaction(function () use ($orderId) {
+                $order = Order::where('user_id', auth()->id())
+                    ->with(['orderItems', 'orderItems.product'])
+                    ->findOrFail($orderId);
+                
+                    $this->restoreProductStock($order);
+
+                    // Update order status to cancelled
+                    $order->update(['order_status' => 'cancelled']);
+
+                    $this->loadOrders();
+                 
+            });
         } catch (\Throwable $e) {
             session()->flash('error', 'Failed to cancel order: ' . $e->getMessage());
         }
@@ -351,5 +356,19 @@ class CustomerDashboard extends Component
         return view('livewire.pages.customer-dashboard', [
             'orders' => $this->orders
         ]);
+    }
+
+    /**
+     * Restore product stock when order is cancelled
+     */
+    protected function restoreProductStock(Order $order): void
+    {
+        foreach ($order->orderItems as $orderItem) {
+            $product = Product::find($orderItem->product_id);
+            if ($product) {
+                // Restore the stock that was taken when the order was placed
+                $product->increment('prod_security_stock', $orderItem->quantity);
+            }
+        }
     }
 }
