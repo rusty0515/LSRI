@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Service;
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Enums\VehicleTypeEnum;
 use App\Models\ServiceRequest;
 use Livewire\Attributes\Layout;
@@ -195,14 +196,13 @@ class CustomerDashboard extends Component
                 $order = Order::where('user_id', auth()->id())
                     ->with(['orderItems', 'orderItems.product'])
                     ->findOrFail($orderId);
-                
-                    $this->restoreProductStock($order);
 
-                    // Update order status to cancelled
-                    $order->update(['order_status' => 'cancelled']);
+                $this->restoreProductStock($order);
 
-                    $this->loadOrders();
-                 
+                // Update order status to cancelled
+                $order->update(['order_status' => 'cancelled']);
+
+                $this->loadOrders();
             });
         } catch (\Throwable $e) {
             session()->flash('error', 'Failed to cancel order: ' . $e->getMessage());
@@ -249,6 +249,7 @@ class CustomerDashboard extends Component
         $this->resetRequestForm();
     }
 
+
     public function resetRequestForm()
     {
         $this->reset([
@@ -282,32 +283,37 @@ class CustomerDashboard extends Component
         $this->validate();
 
         try {
-            $serviceNumber = 'SR-' . now()->format('Ymd') . '-' . str_pad(ServiceRequest::count() + 1, 4, '0', STR_PAD_LEFT);
+            DB::transaction(function () {
+                $serviceNumber = 'SR-' . now()->format('Ymd') . '-' . str_pad(ServiceRequest::count() + 1, 4, '0', STR_PAD_LEFT);
 
-            $remarks = $this->message;
-            if ($this->selectedVehicleType === 'other' && ($this->vehicleBrand || $this->vehicleModel)) {
-                $details = "Vehicle Details: Brand: {$this->vehicleBrand}, Model: {$this->vehicleModel}";
-                $remarks = $remarks ? "{$remarks}\n\n{$details}" : $details;
-            }
+                $remarks = $this->message;
+                if ($this->selectedVehicleType === 'other' && ($this->vehicleBrand || $this->vehicleModel)) {
+                    $details = "Vehicle Details: Brand: {$this->vehicleBrand}, Model: {$this->vehicleModel}";
+                    $remarks = $remarks ? "{$remarks}\n\n{$details}" : $details;
+                }
 
-            $serviceRequest = ServiceRequest::create([
-                'service_number' => $serviceNumber,
-                'user_id' => auth()->id(),
-                'mechanic_id' => $this->selectedMechanic,
-                'vehicle_type' => $this->selectedVehicleType,
-                'requested_date' => $this->requestedDate,
-                'scheduled_date' => $this->scheduledDate,
-                'remarks' => $remarks,
-                'status' => 'pending',
-            ]);
+                $serviceRequest = ServiceRequest::create([
+                    'service_number' => $serviceNumber,
+                    'user_id' => auth()->id(),
+                    'mechanic_id' => $this->selectedMechanic,
+                    'vehicle_type' => $this->selectedVehicleType,
+                    'requested_date' => $this->requestedDate,
+                    'scheduled_date' => $this->scheduledDate,
+                    'remarks' => $remarks,
+                    'status' => 'pending',
+                ]);
 
-            if (method_exists($serviceRequest, 'services')) {
-                $serviceRequest->services()->attach($this->selectedServices);
-            }
+                foreach ($this->selectedServices as $serviceId) {
+                    $serviceRequest->items()->create([
+                        'service_id' => $serviceId,
+                        'quantity' => 1,
+                        'subtotal_price' => Service::find($serviceId)->service_price ?? 0,
+                    ]);
+                }
+            });
 
-            $this->showRequestModal = false;
+           // $this->showRequestModal = false;
             $this->resetRequestForm();
-
             $this->loadServiceRequests();
             $this->loadVehicles();
 

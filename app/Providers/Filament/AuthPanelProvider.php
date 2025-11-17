@@ -25,7 +25,7 @@ class AuthPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
+            // ->default()
             ->id('auth')
             ->path('auth')
             ->login()

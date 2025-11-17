@@ -17,7 +17,7 @@ class ServiceRequestObserver
      */
     public function created(ServiceRequest $serviceRequest): void
     {
-        $serviceRequest->load('user');
+        $serviceRequest->load('customer');
         $this->notifyUsers($serviceRequest);
     }
 
@@ -87,20 +87,20 @@ class ServiceRequestObserver
                         ->button()
                         ->icon('heroicon-o-eye')
                         ->label('View')
-                        ->url(MechanicServiceRequest::getUrl('edit', ['record' => $serviceRequest->id]))
+                        ->url(MechanicServiceRequest::getUrl('view', ['record' => $serviceRequest->id, 'panel' => 'service']))
                 ]);
         } else {
                 return Notification::make()
                     ->title($title)
                     ->icon('heroicon-o-wrench-screwdriver')
-                    ->body($body)
-                    ->actions([
-                        Action::make('view')
-                            ->button()
-                            ->icon('heroicon-o-eye')
-                            ->label('View')
-                            ->url(ServiceRequestResource::getUrl('edit', ['record' => $serviceRequest->id]))
-                    ]);
+                    ->body($body);
+                    // ->actions([
+                    //     Action::make('view')
+                    //         ->button()
+                    //         ->icon('heroicon-o-eye')
+                    //         ->label('View')
+                    //         ->url(ServiceRequestResource::getUrl('edit', ['record' => $serviceRequest->id, 'panel' => 'admin']))
+                    // ]);
         }
     }
 

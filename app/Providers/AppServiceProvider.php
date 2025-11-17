@@ -33,6 +33,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        ServiceRequest::observe(ServiceRequestObserver::class);
+       ServiceRequest::observe(ServiceRequestObserver::class);
     }
 }
