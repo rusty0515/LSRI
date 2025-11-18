@@ -102,4 +102,14 @@ class User extends Authenticatable implements FilamentUser
             default       => route('filament.auth.auth.login'),
         };
     }
+
+     public function sents() : HasMany
+    {
+        return $this->hasMany(Sent::class, 'user_id');
+    }
+
+    public function contacts() : HasMany
+    {
+        return $this->hasMany(Contact::class, 'user_id');
+    }
 }

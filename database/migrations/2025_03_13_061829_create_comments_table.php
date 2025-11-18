@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('title')->nullable();
             $table->text('content')->nullable();
             $table->boolean('is_visible')->default(false);
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

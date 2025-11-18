@@ -20,7 +20,7 @@
                         <svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                         </svg>
-                        {{ __('Orders') }}
+                        {{ __('My Orders') }}
                     </button>
                     
                     <button type="button" wire:click="setActiveSegment('requests')"
@@ -28,7 +28,7 @@
                         <svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
                         </svg>
-                        {{ __('Request') }}
+                        {{ __('My Request') }}
                     </button>
 
                     <button type="button" wire:click="setActiveSegment('vehicles')"
@@ -36,7 +36,7 @@
                         <svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
                         </svg>
-                        {{ __('Vehicles') }}
+                        {{ __('My Vehicles') }}
                     </button>
 
                     <a href="{{ route('page.checkout') }}"
@@ -239,7 +239,8 @@
                             <thead>
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Vehicle Type</th>
-                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Brand & Model</th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Brand </th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Model</th>
                                     <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Services</th>
                                     <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">First Service</th>
                                     <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Last Service</th>
@@ -268,7 +269,10 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                                            {{ $vehicle['brand_model'] }}
+                                            {{ $vehicle['brand'] }}
+                                        </td>
+                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                            {{ $vehicle['model'] }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
                                             <span class="inline-flex items-center gap-x-1.5 py-1 px-2 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-500">
@@ -299,10 +303,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
                         </svg>
                         <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No vehicles found</h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-neutral-400">Get started by creating a service request for your vehicle.</p>
-                        <button type="button" wire:click="openRequestModal" class="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700">
-                            Create Service Request
-                        </button>
                     </div>
                 @endif
             @endif
@@ -332,40 +332,40 @@
                     <div class="space-y-4">
                         <!-- Vehicle Type Selection -->
                         <!-- Vehicle Type Selection -->
-<div>
-    <label class="block mb-2 text-sm font-medium dark:text-white">Select Vehicle Type</label>
-    <div class="grid grid-cols-3 gap-3">
-        @foreach(['car' => 'Car', 'motorcycle' => 'Motorcycle', 'other' => 'Other'] as $value => $label)
-            <label class="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:border-neutral-700 dark:hover:bg-neutral-700 cursor-pointer {{ $selectedVehicleType === $value ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : '' }}">
-                <input type="radio" wire:model.live="selectedVehicleType" value="{{ $value }}" 
-                    class="shrink-0 border-gray-300 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-600 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800">
-                <span class="mt-2 text-sm font-medium text-gray-800 dark:text-white">{{ $label }}</span>
-            </label>
-        @endforeach
-    </div>
-    @error('selectedVehicleType') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-</div>
+                            <div>
+                                <label class="block mb-2 text-sm font-medium dark:text-white">Select Vehicle Type</label>
+                                <div class="grid grid-cols-3 gap-3">
+                                    @foreach(['car' => 'Car', 'motorcycle' => 'Motorcycle', 'other' => 'Other'] as $value => $label)
+                                        <label class="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:border-neutral-700 dark:hover:bg-neutral-700 cursor-pointer {{ $selectedVehicleType === $value ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : '' }}">
+                                            <input type="radio" wire:model.live="selectedVehicleType" value="{{ $value }}" 
+                                                class="shrink-0 border-gray-300 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-600 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800">
+                                            <span class="mt-2 text-sm font-medium text-gray-800 dark:text-white">{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('selectedVehicleType') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
 
-<!-- Vehicle Details for "Other" type -->
-@if($selectedVehicleType === 'other')
-    <div class="grid grid-cols-2 gap-4 transition-all duration-300 ease-in-out" 
-         x-data x-transition>
-        <div>
-            <label for="vehicleBrand" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Brand</label>
-            <input type="text" id="vehicleBrand" wire:model="vehicleBrand" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 dark:bg-neutral-800 dark:border-neutral-600 dark:text-white"
-                placeholder="Enter vehicle brand">
-            @error('vehicleBrand') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-        </div>
-        <div>
-            <label for="vehicleModel" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Model</label>
-            <input type="text" id="vehicleModel" wire:model="vehicleModel" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 dark:bg-neutral-800 dark:border-neutral-600 dark:text-white"
-                placeholder="Enter vehicle model">
-            @error('vehicleModel') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-        </div>
-    </div>
-@endif
+                            <!-- Vehicle Details for "Other" type -->
+                            @if($selectedVehicleType === 'other')
+                                <div class="grid grid-cols-2 gap-4 transition-all duration-300 ease-in-out" 
+                                    x-data x-transition>
+                                    <div>
+                                        <label for="vehicleBrand" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Brand</label>
+                                        <input type="text" id="vehicleBrand" wire:model="vehicleBrand" 
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 dark:bg-neutral-800 dark:border-neutral-600 dark:text-white"
+                                            placeholder="Enter vehicle brand">
+                                        @error('vehicleBrand') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label for="vehicleModel" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Model</label>
+                                        <input type="text" id="vehicleModel" wire:model="vehicleModel" 
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 dark:bg-neutral-800 dark:border-neutral-600 dark:text-white"
+                                            placeholder="Enter vehicle model">
+                                        @error('vehicleModel') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+                            @endif
 
                         <!-- Mechanic Selection -->
                         <div>
@@ -438,10 +438,10 @@
                             Cancel
                         </button>
                         <button type="button" wire:click="saveRequest" wire:loading.attr="disabled"
-    class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700 disabled:opacity-50">
-    <span >Submit Request</span>
-    <!-- <span wire:loading>Submitting...</span> -->
-</button>
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700 disabled:opacity-50">
+                            <span >Submit Request</span>
+                            <!-- <span wire:loading>Submitting...</span> -->
+                        </button>
                     </div>
                 </div>
             </div>

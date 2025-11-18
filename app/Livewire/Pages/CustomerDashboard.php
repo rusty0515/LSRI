@@ -87,6 +87,7 @@ class CustomerDashboard extends Component
         $this->serviceRequests = ServiceRequest::where('user_id', auth()->id())
             ->when($this->activeRequestTab !== 'all', fn($q) => $q->where('status', $this->activeRequestTab))
             ->latest()
+            ->take(5)
             ->get();
     }
 
@@ -105,52 +106,58 @@ class CustomerDashboard extends Component
                     $q->whereIn('order_status', $statusMap[$this->activeOrderTab]);
                 }
             })
+            ->take(5)
             ->latest()
             ->get();
     }
 
     public function loadVehicles()
-    {
-        $this->vehicles = ServiceRequest::where('user_id', auth()->id())
-            ->select('vehicle_type', 'remarks')
-            ->selectRaw('MIN(created_at) as first_used')
-            ->selectRaw('MAX(created_at) as last_used')
-            ->selectRaw('COUNT(*) as service_count')
-            ->groupBy('vehicle_type', 'remarks')
-            ->latest('last_used')
-            ->get()
-            ->map(function ($request) {
-                return [
-                    'type' => $request->vehicle_type,
-                    'type_label' => VehicleTypeEnum::from($request->vehicle_type)->getLabel(),
-                    'brand_model' => $this->extractBrandModel($request->remarks),
-                    'service_count' => $request->service_count,
-                    'first_used' => Carbon::parse($request->first_used),
-                    'last_used' => Carbon::parse($request->last_used),
-                    'remarks' => $request->remarks
-                ];
-            });
-    }
+{
+    $this->vehicles = ServiceRequest::where('user_id', auth()->id())
+        ->select('vehicle_type', 'remarks')
+        ->selectRaw('MIN(created_at) as first_used')
+        ->selectRaw('MAX(created_at) as last_used')
+        ->selectRaw('COUNT(*) as service_count')
+        ->groupBy('vehicle_type', 'remarks')
+        ->latest('last_used')
+        ->get()
+        ->map(function ($request) {
+            $brandModel = $this->extractBrandModel($request->remarks);
+            
+            return [
+                'type' => $request->vehicle_type,
+                'type_label' => VehicleTypeEnum::from($request->vehicle_type)->getLabel(),
+                'brand' => $brandModel['brand'],
+                'model' => $brandModel['model'],
+                'service_count' => $request->service_count,
+                'first_used' => Carbon::parse($request->first_used),
+                'last_used' => Carbon::parse($request->last_used),
+                'remarks' => $request->remarks
+            ];
+        });
+}
 
     private function extractBrandModel($remarks)
-    {
-        if (!$remarks) return 'Not specified';
-        
-        if (str_contains($remarks, 'Vehicle Details:')) {
-            $lines = explode("\n", $remarks);
-            foreach ($lines as $line) {
-                if (str_contains($line, 'Brand:') && str_contains($line, 'Model:')) {
-                    preg_match('/Brand:\s*(.*?),?\s*Model:\s*(.*)/', $line, $matches);
-                    if (count($matches) >= 3) {
-                        return trim($matches[1]) . ' ' . trim($matches[2]);
-                    }
+{
+    if (!$remarks) return ['brand' => 'Not specified', 'model' => ''];
+
+    if (str_contains($remarks, 'Vehicle Details:')) {
+        $lines = explode("\n", $remarks);
+        foreach ($lines as $line) {
+            if (str_contains($line, 'Brand:') && str_contains($line, 'Model:')) {
+                preg_match('/Brand:\s*(.*?),?\s*Model:\s*(.*)/', $line, $matches);
+                if (count($matches) >= 3) {
+                    return [
+                        'brand' => trim($matches[1]),
+                        'model' => trim($matches[2])
+                    ];
                 }
             }
         }
-        
-        return 'Not specified';
     }
 
+    return ['brand' => 'Not specified', 'model' => ''];
+}
     // Segment and tab management
     public function setActiveSegment($segment)
     {
