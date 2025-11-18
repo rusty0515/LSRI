@@ -35,7 +35,7 @@ class AuthPanelProvider extends PanelProvider
             ])
             ->font('Plus Jakarta Sans')
             ->spa()
-            ->brandLogo(asset('imgs/logo-01.png', true))
+            ->brandLogo(asset('imgs/logo-01.png'))
             ->brandLogoHeight('3rem')
             ->favicon(asset('imgs/logo-01.png'))
             ->authGuard('web')
