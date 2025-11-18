@@ -2,23 +2,30 @@
 
 namespace App\Livewire\Pages;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
-use App\Models\ServiceRequest;
-use App\Models\Service;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\Service;
+use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Enums\VehicleTypeEnum;
-use Carbon\Carbon;
+use App\Models\ServiceRequest;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Illuminate\Support\Facades\DB;
 
-#[Layout('layouts.app')]
 class CustomerDashboard extends Component
 {
+    public $orders;
+    public $order_status = 'new';
     public $activeSegment = 'orders';
     public $activeOrderTab = 'in_progress';
     public $activeRequestTab = 'pending';
     public $showRequestModal = false;
-    
+    public $showOrderDetailsModal = false;
+    public $selectedOrder;
+
     // Request form properties
     public $selectedVehicleType = 'car';
     public $selectedMechanic;
@@ -32,8 +39,24 @@ class CustomerDashboard extends Component
     public $mechanics;
     public $services;
     public $serviceRequests;
-    public $orders;
     public $vehicles;
+
+    public function updatedOrderStatus()
+    {
+        $this->getOrders();
+    }
+
+    protected function getOrders()
+    {
+        $this->orders = Order::query()
+            ->with(['orderItems'])
+            ->where('user_id', auth()->user()->id)
+            ->where('order_status', $this->order_status)
+            ->latest()
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+    }
 
     protected $rules = [
         'selectedVehicleType' => 'required|in:car,motorcycle,other',
@@ -71,7 +94,7 @@ class CustomerDashboard extends Component
     public function loadMechanics()
     {
         $this->mechanics = User::whereHas('roles', fn($q) => $q->where('name', 'mechanic'))->get();
-        
+
         if ($this->mechanics->isEmpty()) {
             $this->mechanics = User::where('id', '!=', auth()->id())->limit(5)->get();
         }
@@ -86,6 +109,7 @@ class CustomerDashboard extends Component
     {
         $this->serviceRequests = ServiceRequest::where('user_id', auth()->id())
             ->when($this->activeRequestTab !== 'all', fn($q) => $q->where('status', $this->activeRequestTab))
+            ->take(10)
             ->latest()
             ->take(5)
             ->get();
@@ -94,19 +118,19 @@ class CustomerDashboard extends Component
     public function loadOrders()
     {
         $this->orders = Order::where('user_id', auth()->id())
-            ->when($this->activeOrderTab !== 'all', function($q) {
+            ->when($this->activeOrderTab !== 'all', function ($q) {
                 $statusMap = [
                     'in_progress' => ['new', 'processing'],
                     'shipped' => ['shipped'],
                     'delivered' => ['delivered'],
                     'cancelled' => ['cancelled']
                 ];
-                
+
                 if (isset($statusMap[$this->activeOrderTab])) {
                     $q->whereIn('order_status', $statusMap[$this->activeOrderTab]);
                 }
             })
-            ->take(5)
+            ->take(10)
             ->latest()
             ->get();
     }
@@ -138,26 +162,57 @@ class CustomerDashboard extends Component
 }
 
     private function extractBrandModel($remarks)
-{
-    if (!$remarks) return ['brand' => 'Not specified', 'model' => ''];
+    {
+        if (!$remarks) return 'Not specified';
 
-    if (str_contains($remarks, 'Vehicle Details:')) {
-        $lines = explode("\n", $remarks);
-        foreach ($lines as $line) {
-            if (str_contains($line, 'Brand:') && str_contains($line, 'Model:')) {
-                preg_match('/Brand:\s*(.*?),?\s*Model:\s*(.*)/', $line, $matches);
-                if (count($matches) >= 3) {
-                    return [
-                        'brand' => trim($matches[1]),
-                        'model' => trim($matches[2])
-                    ];
+        if (str_contains($remarks, 'Vehicle Details:')) {
+            $lines = explode("\n", $remarks);
+            foreach ($lines as $line) {
+                if (str_contains($line, 'Brand:') && str_contains($line, 'Model:')) {
+                    preg_match('/Brand:\s*(.*?),?\s*Model:\s*(.*)/', $line, $matches);
+                    if (count($matches) >= 3) {
+                        return trim($matches[1]) . ' ' . trim($matches[2]);
+                    }
                 }
             }
         }
+
+        return 'Not specified';
     }
 
-    return ['brand' => 'Not specified', 'model' => ''];
-}
+    // Order Details Modal
+    public function openOrderDetails($orderId)
+    {
+        $this->selectedOrder = Order::with('orderItems')->find($orderId);
+        $this->showOrderDetailsModal = true;
+    }
+
+    public function closeOrderDetailsModal()
+    {
+        $this->showOrderDetailsModal = false;
+        $this->selectedOrder = null;
+    }
+
+    public function cancelOrder($orderId)
+    {
+        try {
+            DB::transaction(function () use ($orderId) {
+                $order = Order::where('user_id', auth()->id())
+                    ->with(['orderItems', 'orderItems.product'])
+                    ->findOrFail($orderId);
+
+                $this->restoreProductStock($order);
+
+                // Update order status to cancelled
+                $order->update(['order_status' => 'cancelled']);
+
+                $this->loadOrders();
+            });
+        } catch (\Throwable $e) {
+            session()->flash('error', 'Failed to cancel order: ' . $e->getMessage());
+        }
+    }
+
     // Segment and tab management
     public function setActiveSegment($segment)
     {
@@ -198,11 +253,18 @@ class CustomerDashboard extends Component
         $this->resetRequestForm();
     }
 
+
     public function resetRequestForm()
     {
         $this->reset([
-            'selectedVehicleType', 'selectedMechanic', 'requestedDate', 'scheduledDate',
-            'message', 'selectedServices', 'vehicleBrand', 'vehicleModel',
+            'selectedVehicleType',
+            'selectedMechanic',
+            'requestedDate',
+            'scheduledDate',
+            'message',
+            'selectedServices',
+            'vehicleBrand',
+            'vehicleModel',
         ]);
 
         $this->setDefaultDates();
@@ -225,37 +287,41 @@ class CustomerDashboard extends Component
         $this->validate();
 
         try {
-            $serviceNumber = 'SR-' . now()->format('Ymd') . '-' . str_pad(ServiceRequest::count() + 1, 4, '0', STR_PAD_LEFT);
+            DB::transaction(function () {
+                $serviceNumber = 'SR-' . now()->format('Ymd') . '-' . str_pad(ServiceRequest::count() + 1, 4, '0', STR_PAD_LEFT);
 
-            $remarks = $this->message;
-            if ($this->selectedVehicleType === 'other' && ($this->vehicleBrand || $this->vehicleModel)) {
-                $details = "Vehicle Details: Brand: {$this->vehicleBrand}, Model: {$this->vehicleModel}";
-                $remarks = $remarks ? "{$remarks}\n\n{$details}" : $details;
-            }
+                $remarks = $this->message;
+                if ($this->selectedVehicleType === 'other' && ($this->vehicleBrand || $this->vehicleModel)) {
+                    $details = "Vehicle Details: Brand: {$this->vehicleBrand}, Model: {$this->vehicleModel}";
+                    $remarks = $remarks ? "{$remarks}\n\n{$details}" : $details;
+                }
 
-            $serviceRequest = ServiceRequest::create([
-                'service_number' => $serviceNumber,
-                'user_id' => auth()->id(),
-                'mechanic_id' => $this->selectedMechanic,
-                'vehicle_type' => $this->selectedVehicleType,
-                'requested_date' => $this->requestedDate,
-                'scheduled_date' => $this->scheduledDate,
-                'remarks' => $remarks,
-                'status' => 'pending',
-            ]);
+                $serviceRequest = ServiceRequest::create([
+                    'service_number' => $serviceNumber,
+                    'user_id' => auth()->id(),
+                    'mechanic_id' => $this->selectedMechanic,
+                    'vehicle_type' => $this->selectedVehicleType,
+                    'requested_date' => $this->requestedDate,
+                    'scheduled_date' => $this->scheduledDate,
+                    'remarks' => $remarks,
+                    'status' => 'pending',
+                ]);
 
-            if (method_exists($serviceRequest, 'services')) {
-                $serviceRequest->services()->attach($this->selectedServices);
-            }
+                foreach ($this->selectedServices as $serviceId) {
+                    $serviceRequest->items()->create([
+                        'service_id' => $serviceId,
+                        'quantity' => 1,
+                        'subtotal_price' => Service::find($serviceId)->service_price ?? 0,
+                    ]);
+                }
+            });
 
-            $this->showRequestModal = false;
+           // $this->showRequestModal = false;
             $this->resetRequestForm();
-            
             $this->loadServiceRequests();
             $this->loadVehicles();
 
             session()->flash('success', 'Service request submitted successfully!');
-
         } catch (\Exception $e) {
             session()->flash('error', 'Failed to submit service request: ' . $e->getMessage());
         }
@@ -285,7 +351,7 @@ class CustomerDashboard extends Component
                 ->where('vehicle_type', $vehicleType)
                 ->where('remarks', $remarks)
                 ->delete();
-                
+
             $this->loadVehicles();
             $this->loadServiceRequests();
             session()->flash('success', "Vehicle history deleted successfully. Removed {$deletedCount} service requests.");
@@ -294,8 +360,25 @@ class CustomerDashboard extends Component
         }
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
-        return view('livewire.pages.customer-dashboard');
+        return view('livewire.pages.customer-dashboard', [
+            'orders' => $this->orders
+        ]);
+    }
+
+    /**
+     * Restore product stock when order is cancelled
+     */
+    protected function restoreProductStock(Order $order): void
+    {
+        foreach ($order->orderItems as $orderItem) {
+            $product = Product::find($orderItem->product_id);
+            if ($product) {
+                // Restore the stock that was taken when the order was placed
+                $product->increment('prod_security_stock', $orderItem->quantity);
+            }
+        }
     }
 }

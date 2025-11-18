@@ -31,6 +31,16 @@ class ServiceRequest extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
+    // public function user(): BelongsTo
+    // {
+    //     return $this->belongsTo(User::class, 'user_id', 'id');
+    // }
+
+    // public function customer(): BelongsTo
+    // {
+    //     return $this->user(); // This now points to the same relationship as user()
+    // }
+
     public function mechanic() : BelongsTo
     {
         return $this->belongsTo(User::class, 'mechanic_id', 'id');

@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentMethodEnum;
+use App\Enums\PaymentStatusEnum;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use App\Forms\Components\AddressForm;
@@ -169,19 +170,27 @@ class OrderResource extends Resource
                         ->optionsLimit(6)
                         ->native(false)
                         ->searchable()
-                        ->relationship(
-                            name: 'user',
-                            ignoreRecord: true,
-                            modifyQueryUsing: fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'customer')),
-                        )
+                        // ->relationship(
+                        //     name: 'user',
+                        //     ignoreRecord: true,
+                        //     modifyQueryUsing: fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'customer')),
+                        // )
                         ->getOptionLabelFromRecordUsing(fn ($record) => ucwords($record->name)),
 
-                    ToggleButtons::make('shipping_method')
+                    ToggleButtons::make('payment_method')
                         ->label('Shipping Method')
                         ->options(PaymentMethodEnum::class)
                         ->inline()
                         ->dehydrated()
                         ->default(PaymentMethodEnum::COD),
+
+                    
+                    ToggleButtons::make('payment_status')
+                        ->label('Payment status')
+                        ->options(PaymentStatusEnum::class)
+                        ->inline()
+                        ->dehydrated()
+                        ->default(PaymentStatusEnum::PENDING),
 
                     TextInput::make('shipping_price')
                         ->label('Shipping Price')

@@ -4,8 +4,9 @@
         <!-- Title -->
         <div class="max-w-2xl mx-auto mb-10 text-center lg:mb-14">
             <h2 class="text-2xl font-bold md:text-4xl md:leading-tight dark:text-white">{{ __('Shop') }}</h2>
-            <p class="mt-1 text-gray-600 dark:text-neutral-400">{{ __('Lorem ipsum dolor sit amet consectetur,
-                adipisicing elit. Omnis, iste!') }}</p>
+            <p class="mt-1 text-gray-600 dark:text-neutral-400">
+                {{ __('Lorem ipsum dolor sit amet consectetur,
+                                adipisicing elit. Omnis, iste!') }}</p>
         </div>
         <!-- End Title -->
 
@@ -57,88 +58,87 @@
                 <!-- Grid -->
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-8">
 
-                    @forelse ($this->products as $product )
+                    @forelse ($this->products as $product)
+                        <!-- Card -->
+                        <div wire:key="card-product-{{ $product->id . '' . $product->prod_sku }}"
+                            class="flex flex-col mb-4 border shadow-sm bg-neutral-200 rounded-xl dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 dark:shadow-neutral-700/70 col-span-4 md:col-span-2">
 
-                    <!-- Card -->
-                    <div wire:key="card-product-{{ $product->id . '' . $product->prod_sku }}"
-                        class="flex flex-col mb-4 border shadow-sm bg-neutral-200 rounded-xl dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 dark:shadow-neutral-700/70 col-span-4 md:col-span-2">
+                            <a class="px-5 py-5" href="{{ route('page.shop.single', $product->prod_slug) }}">
+                                <div class="p-4 md:p-0 mb-4">
+                                    <small
+                                        class="inline-flex items-center gap-x-1.5 py-1 px-3 rounded-full text-xs  bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-500">
+                                        {{ $product->prod_sku }}
+                                    </small>
 
-                        <a class="px-5 py-5" href="{{ route('page.shop.single', $product->prod_slug) }}">
-                            <div class="p-4 md:p-0 mb-4">
-                                <small
-                                    class="inline-flex items-center gap-x-1.5 py-1 px-3 rounded-full text-xs  bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-500">
-                                    {{ $product->prod_sku }}
-                                </small>
+                                    <h5 class="text-sm font-bold text-gray-800 dark:text-white py-1.5">
+                                        {{ $product->prod_name }}
 
-                                <h5 class="text-sm font-bold text-gray-800 dark:text-white py-1.5">
-                                    {{ $product->prod_name }}
+                                        @if ($product->discount_badge_text)
+                                            {{-- Show discount badge --}}
+                                            <span
+                                                class="inline-block bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full ms-2">
+                                                {{ $product->discount_badge_text }}
+                                            </span>
+                                        @endif
+                                    </h5>
 
-                                    @if ($product->discount_badge_text)
-                                    {{-- Show discount badge --}}
-                                    <span
-                                        class="inline-block bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full ms-2">
-                                        {{ $product->discount_badge_text }}
-                                    </span>
-                                    @endif
-                                </h5>
+                                    <div class="flex flex-row justify-between align-middle items-center">
+                                        <p class="text-sm text-gray-500 dark:text-neutral-500">
+                                            4k+ sold
+                                            {{-- {{ $product->brand->brand_name }} --}}
+                                        </p>
 
-                                <div class="flex flex-row justify-between align-middle items-center">
-                                    <p class="text-sm text-gray-500 dark:text-neutral-500">
-                                        4k+ sold
-                                        {{-- {{ $product->brand->brand_name }}--}}
-                                    </p>
+                                        <div>
 
-                                    <div>
-
+                                        </div>
                                     </div>
+
+                                    <!-- GROUPS -->
+                                    <div class="flex flex-row items-center justify-between mt-3 align-middle">
+
+                                        @if ($product->has_discount)
+                                            {{-- Show prices --}}
+                                            <div>
+                                                <span
+                                                    class="text-neutral-400 line-through text-sm mr-2">₱{{ number_format($product->prod_price, 2) }}</span>
+                                                <span
+                                                    class="font-bold text-gray-500 dark:text-white">₱{{ number_format($product->discounted_price, 2) }}</span>
+                                            </div>
+                                        @else
+                                            {{-- No discount --}}
+                                            <div>
+                                                <span
+                                                    class="font-bold text-gray-500 dark:text-white">₱{{ number_format($product->prod_price, 2) }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <!-- EBD GROUP -->
+
                                 </div>
-
-                                <!-- GROUPS -->
-                                <div class="flex flex-row items-center justify-between mt-3 align-middle">
-
-                                    @if ($product->has_discount)
-
-                                    {{-- Show prices --}}
-                                    <div>
-                                        <span class="text-neutral-400 line-through text-sm mr-2">₱{{
-                                            number_format($product->prod_price, 2) }}</span>
-                                        <span class="font-bold text-gray-500 dark:text-white">₱{{
-                                            number_format($product->discounted_price, 2) }}</span>
-                                    </div>
-                                    @else
-                                    {{-- No discount --}}
-                                    <div>
-                                        <span class="font-bold text-gray-500 dark:text-white">₱{{
-                                            number_format($product->prod_price, 2) }}</span>
-                                    </div>
-                                    @endif
+                                <div class="aspect-4/4 overflow-hidden rounded-2xl">
+                                    <img class="size-full object-cover rounded-2xl"
+                                        src="{{ asset(Storage::url($product->prod_ft_image)) }}"
+                                        alt="{{ $product->prod_slug }}">
                                 </div>
-                                <!-- EBD GROUP -->
+                            </a>
 
-                            </div>
-                            <div class="aspect-4/4 overflow-hidden rounded-2xl">
-                                <img class="size-full object-cover rounded-2xl"
-                                    src="{{ asset(Storage::url($product->prod_ft_image)) }}"
-                                    alt="{{ $product->prod_slug }}">
-                            </div>
-                        </a>
-
-                    </div>
-                    <!-- End Card -->
+                        </div>
+                        <!-- End Card -->
 
                     @empty
-                    <div class="container w-full mx-auto text-center col-span-full">
+                        <div class="container w-full mx-auto text-center col-span-full">
 
-                        <svg class="flex items-center justify-center flex-shrink-0 w-auto mx-auto text-red-500 align-middle h-14"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                        </svg>
+                            <svg class="flex items-center justify-center flex-shrink-0 w-auto mx-auto text-red-500 align-middle h-14"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                            </svg>
 
-                        <h1 class="mt-4 text-2xl text-gray-800 dark:text-white">{{ __('No Products Created') }}</h1>
+                            <h1 class="mt-4 text-2xl text-gray-800 dark:text-white">{{ __('No Products Created') }}
+                            </h1>
 
-                    </div>
+                        </div>
                     @endforelse
 
                 </div>
