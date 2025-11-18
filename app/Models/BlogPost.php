@@ -62,4 +62,5 @@ class BlogPost extends Model
     {
         $query->where('slug', $slug);
     }
+    
 }

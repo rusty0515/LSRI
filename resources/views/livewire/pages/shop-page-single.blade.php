@@ -185,67 +185,169 @@
                     </div>
                     
                     <!-- Rating and Review Section -->
-                    <div class="py-8 lg:pe-8 border-t border-gray-200 dark:border-neutral-700">
+                    <div id="reviews-section" class="py-8 lg:pe-8 border-t border-gray-200 dark:border-neutral-700">
                         <div class="space-y-5 text-gray-500 lg:space-y-8 dark:text-white">
                             <h2 class="text-lg font-bold lg:text-3xl dark:text-white">{{ __('Customer Reviews') }}</h2>
                             
                             <!-- Add Review Form -->
-                            <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 mb-8">
-                                <h3 class="text-xl font-semibold mb-4 dark:text-white">{{ __('Write a Review') }}</h3>
-                                
-                                <!-- Star Rating Input -->
-                                <div class="mb-4">
-    <label class="block text-sm font-medium mb-2 dark:text-white">{{ __('Your Rating') }}</label>
-    <div class="flex space-x-1" id="starRating">
-        @for($i = 1; $i <= 5; $i++)
-            <button type="button" 
-                    wire:click="$set('ratingStar', {{ $i }})"
-                    class="text-gray-300 hover:text-yellow-400 focus:outline-none transition-colors {{ $ratingStar >= $i ? 'text-yellow-400' : '' }}">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                </svg>
-            </button>
-        @endfor
-    </div>
-    @error('ratingStar') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-</div>
-                                
-                                <!-- Review Text Input -->
-                                <div class="mb-4">
-                                    <label for="reviewText" class="block text-sm font-medium mb-2 dark:text-white">{{ __('Your Review') }}</label>
-                                    <textarea id="reviewText" 
-                                              wire:model="reviewText"
-                                              rows="4" 
-                                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white"
-                                              placeholder="{{ __('Share your experience with this product...') }}"></textarea>
-                                    @error('reviewText') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-                                
-                                <!-- Image Upload (Optional) -->
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium mb-2 dark:text-white">{{ __('Add Photos (Optional)') }}</label>
-                                    <div class="flex items-center justify-center w-full">
-                                        <label for="ratingImages" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-neutral-700 hover:bg-gray-100 dark:border-neutral-600 dark:hover:border-gray-500 dark:hover:bg-neutral-600">
-                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                                </svg>
-                                                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">{{ __('Click to upload') }}</span> {{ __('or drag and drop') }}</p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF (MAX. 5MB)</p>
-                                            </div>
-                                            <input id="ratingImages" type="file" class="hidden" wire:model="ratingImages" multiple />
-                                        </label>
-                                    </div>
-                                    @error('ratingImages') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-                                
-                                <!-- Submit Button -->
+                            <!-- Add Review Form -->
+@auth
+    <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 mb-8">
+        <h3 class="text-xl font-semibold mb-4 dark:text-white">{{ __('Write a Review') }}</h3>
+        
+        <!-- Star Rating Input -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-2 dark:text-white">{{ __('Your Rating') }}</label>
+            <div class="flex space-x-1" id="starRating">
+                @for($i = 1; $i <= 5; $i++)
+                    <button type="button" 
+                            wire:click="$set('ratingStar', {{ $i }})"
+                            class="text-gray-300 hover:text-yellow-400 focus:outline-none transition-colors {{ $ratingStar >= $i ? 'text-yellow-400' : '' }}">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </button>
+                @endfor
+            </div>
+            @error('ratingStar') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+        </div>
+        
+        <!-- Review Text Input -->
+        <div class="mb-4">
+            <label for="reviewText" class="block text-sm font-medium mb-2 dark:text-white">{{ __('Your Review') }}</label>
+            <textarea id="reviewText" 
+                      wire:model="reviewText"
+                      rows="4" 
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white"
+                      placeholder="{{ __('Share your experience with this product...') }}"></textarea>
+            @error('reviewText') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+        </div>
+        
+        <!-- Image Upload (Optional) -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-2 dark:text-white">
+                {{ __('Add Photos (Optional)') }}
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                    ({{ $this->remainingImageSlots }} of {{ $maxImages }} remaining)
+                </span>
+            </label>
+            
+            <!-- Selected Images Preview -->
+            <div class="mb-3" id="selectedImagesPreview">
+                @if($ratingImages && count($ratingImages) > 0)
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        @foreach($ratingImages as $index => $image)
+                            <div class="relative">
+                                <img src="{{ $image->temporaryUrl() }}" 
+                                    alt="Preview" 
+                                    class="w-20 h-20 object-cover rounded-md border border-gray-300 dark:border-neutral-600">
                                 <button type="button" 
-                                        wire:click="submitReview"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                                    {{ __('Submit Review') }}
+                                        wire:click="removeImage({{ $index }})"
+                                        wire:loading.attr="disabled"
+                                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors">
+                                    ×
                                 </button>
                             </div>
+                        @endforeach
+                    </div>
+                    
+                    <!-- Clear All Button -->
+                    @if(count($ratingImages) > 1)
+                        <button type="button"
+                                wire:click="clearAllImages"
+                                wire:loading.attr="disabled"
+                                class="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">
+                            {{ __('Remove All Images') }}
+                        </button>
+                    @endif
+                @endif
+            </div>
+            
+            <!-- Upload Area -->
+            @if($this->remainingImageSlots > 0)
+                <div class="flex items-center justify-center w-full">
+                    <label for="newRatingImages" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-600 dark:border-neutral-600 dark:hover:border-gray-500 transition-colors">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                <span class="font-semibold">{{ __('Click to upload') }}</span> 
+                                {{ __('or drag and drop') }}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                PNG, JPG, GIF (MAX. 5MB each)
+                            </p>
+                        </div>
+                        <input id="newRatingImages" 
+                            type="file" 
+                            class="hidden" 
+                            wire:model="newRatingImages" 
+                            multiple 
+                            accept="image/*"
+                            {{ $this->remainingImageSlots === 0 ? 'disabled' : '' }} />
+                    </label>
+                </div>
+            @else
+                <div class="text-center p-4 border border-gray-300 dark:border-neutral-600 rounded-lg bg-gray-50 dark:bg-neutral-700">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        {{ __('Maximum number of images reached') }}
+                    </p>
+                </div>
+            @endif
+
+            <!-- Upload Progress -->
+            @if($uploadProgress > 0 && $uploadProgress < 100)
+                <div class="mt-2">
+                    <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-neutral-700">
+                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                            style="width: {{ $uploadProgress }}%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {{ __('Uploading...') }} {{ $uploadProgress }}%
+                    </p>
+                </div>
+            @endif
+
+            @error('newRatingImages.*') 
+                <span class="text-red-500 text-sm block mt-2">{{ $message }}</span> 
+            @enderror
+            @error('ratingImages.*') 
+                <span class="text-red-500 text-sm block mt-2">{{ $message }}</span> 
+            @enderror
+        </div>
+
+        <!-- Submit Button -->
+        <button type="button" 
+                wire:click="submitReview"
+                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+            {{ __('Submit Review') }}
+        </button>
+    </div>
+@else
+    <!-- Login Prompt for Guests -->
+    <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 mb-8 text-center">
+        <div class="mb-4">
+            <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 dark:text-white">{{ __('Login to Write a Review') }}</h3>
+        <p class="text-gray-600 dark:text-neutral-400 mb-4">
+            {{ __('Please login to share your experience with this product.') }}
+        </p>
+        <a href="{{ route('filament.auth.auth.login') }}" 
+           class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+            {{ __('Login Now') }}
+        </a>
+        <p class="text-sm text-gray-500 dark:text-neutral-500 mt-3">
+            {{ __("Don't have an account?") }}
+            <a href="{{ route('filament.auth.auth.register') }}" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+                {{ __('Sign up') }}
+            </a>
+        </p>
+    </div>
+@endauth
                             
                             <!-- Reviews List -->
                             <div class="space-y-6">
@@ -274,12 +376,12 @@
                                             <p class="text-gray-700 dark:text-neutral-300 mb-4">{{ $review->review }}</p>
                                             
                                             @if($review->ratingImages && $review->ratingImages->count() > 0)
-                                                <div class="flex space-x-2 mb-4">
+                                                <div class="flex flex-wrap gap-2 mb-4">
                                                     @foreach($review->ratingImages as $image)
                                                         <img src="{{ asset(Storage::url($image->url)) }}" 
-                                                             alt="Review image" 
-                                                             class="w-20 h-20 object-cover rounded-md cursor-pointer"
-                                                             onclick="openImageModal('{{ asset(Storage::url($image->url)) }}')">
+                                                            alt="Review image" 
+                                                            class="w-20 h-20 object-cover rounded-md cursor-pointer border border-gray-200 dark:border-neutral-600"
+                                                            onclick="openImageModal('{{ asset(Storage::url($image->url)) }}')">
                                                     @endforeach
                                                 </div>
                                             @endif
@@ -365,145 +467,58 @@
                         <hr class="my-5 border-gray-500 lg:my-8">
 
                         <div class="lg:mt-8">
-                            <h1 class="mb-5 text-lg font-bold lg:mb-8 lg:text-3xl dark:text-white">
-                                {{ __('Product Reviews') }}</h1>
-                            <!-- Header -->
-                            <div class="flex items-center justify-between mb-3 gap-x-3">
-                                <div class="flex items-center gap-x-2">
-                                    <h4 class="font-semibold text-gray-800 dark:text-white">
-                                        5.0
-                                    </h4>
+    <h1 class="mb-5 text-lg font-bold lg:mb-8 lg:text-3xl dark:text-white">
+        {{ __('Product Reviews') }}</h1>
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-3 gap-x-3">
+        <div class="flex items-center gap-x-2">
+            <h4 class="font-semibold text-gray-800 dark:text-white">
+                {{ number_format($averageRating, 1) }}
+            </h4>
 
-                                    <!-- Rating -->
-                                    <div class="flex">
-                                        <svg class="text-yellow-400 shrink-0 size-4 dark:text-yellow-600"
-                                            xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            fill="currentColor" viewBox="0 0 16 16">
-                                            <path
-                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                            </path>
-                                        </svg>
-                                        <svg class="text-yellow-400 shrink-0 size-4 dark:text-yellow-600"
-                                            xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            fill="currentColor" viewBox="0 0 16 16">
-                                            <path
-                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                            </path>
-                                        </svg>
-                                        <svg class="text-yellow-400 shrink-0 size-4 dark:text-yellow-600"
-                                            xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            fill="currentColor" viewBox="0 0 16 16">
-                                            <path
-                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                            </path>
-                                        </svg>
-                                        <svg class="text-yellow-400 shrink-0 size-4 dark:text-yellow-600"
-                                            xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            fill="currentColor" viewBox="0 0 16 16">
-                                            <path
-                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                            </path>
-                                        </svg>
-                                        <svg class="text-yellow-400 shrink-0 size-4 dark:text-yellow-600"
-                                            xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            fill="currentColor" viewBox="0 0 16 16">
-                                            <path
-                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <!-- End Rating -->
-                                </div>
+            <!-- Rating -->
+            <div class="flex">
+                @for($i = 1; $i <= 5; $i++)
+                    <svg class="shrink-0 size-4 {{ $i <= $averageRating ? 'text-yellow-400 dark:text-yellow-600' : 'text-gray-300 dark:text-neutral-600' }}"
+                        xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        fill="currentColor" viewBox="0 0 16 16">
+                        <path
+                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
+                        </path>
+                    </svg>
+                @endfor
+            </div>
+            <!-- End Rating -->
+        </div>
 
-                                <a class="inline-flex items-center text-xs font-medium text-blue-600 gap-x-1 decoration-2 hover:underline"
-                                    href="#">
-                                    See all (4)
-                                </a>
-                            </div>
-                            <!-- End Header -->
+        <!-- <a class="inline-flex items-center text-xs font-medium text-blue-600 gap-x-1 decoration-2 hover:underline"
+            href="#reviews-section">
+            See all ({{ $totalReviews }})
+        </a> -->
+    </div>
+    <!-- End Header -->
 
-                            <div class="mb-3">
-                                <!-- Progress -->
-                                <div class="flex items-center gap-x-3 whitespace-nowrap">
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">5 star</span>
-                                    </div>
-                                    <div class="flex w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-neutral-700"
-                                        role="progressbar" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="flex flex-col justify-center overflow-hidden text-xs text-center text-white transition duration-500 bg-yellow-400 rounded-full whitespace-nowrap dark:bg-yellow-600"
-                                            style="width: 78%"></div>
-                                    </div>
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">78%</span>
-                                    </div>
-                                </div>
-                                <!-- End Progress -->
-
-                                <!-- Progress -->
-                                <div class="flex items-center gap-x-3 whitespace-nowrap">
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">4 star</span>
-                                    </div>
-                                    <div class="flex w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-neutral-700"
-                                        role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="flex flex-col justify-center overflow-hidden text-xs text-center text-white transition duration-500 bg-yellow-400 rounded-full whitespace-nowrap dark:bg-yellow-600"
-                                            style="width: 20%"></div>
-                                    </div>
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">20%</span>
-                                    </div>
-                                </div>
-                                <!-- End Progress -->
-
-                                <!-- Progress -->
-                                <div class="flex items-center gap-x-3 whitespace-nowrap">
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">3 star</span>
-                                    </div>
-                                    <div class="flex w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-neutral-700"
-                                        role="progressbar" aria-valuenow="6" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="flex flex-col justify-center overflow-hidden text-xs text-center text-white transition duration-500 bg-yellow-400 rounded-full whitespace-nowrap dark:bg-yellow-600"
-                                            style="width: 6%"></div>
-                                    </div>
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">6%</span>
-                                    </div>
-                                </div>
-                                <!-- End Progress -->
-
-                                <!-- Progress -->
-                                <div class="flex items-center gap-x-3 whitespace-nowrap">
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">2 star</span>
-                                    </div>
-                                    <div class="flex w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-neutral-700"
-                                        role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="flex flex-col justify-center overflow-hidden text-xs text-center text-white transition duration-500 bg-yellow-400 rounded-full whitespace-nowrap dark:bg-yellow-600"
-                                            style="width: 2%"></div>
-                                    </div>
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">2%</span>
-                                    </div>
-                                </div>
-                                <!-- End Progress -->
-
-                                <!-- Progress -->
-                                <div class="flex items-center gap-x-3 whitespace-nowrap">
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">1 star</span>
-                                    </div>
-                                    <div class="flex w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-neutral-700"
-                                        role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="flex flex-col justify-center overflow-hidden text-xs text-center text-white transition duration-500 bg-yellow-400 rounded-full whitespace-nowrap dark:bg-yellow-600"
-                                            style="width: 0%"></div>
-                                    </div>
-                                    <div class="w-10 text-end">
-                                        <span class="text-sm text-gray-800 dark:text-white">0%</span>
-                                    </div>
-                                </div>
-                                <!-- End Progress -->
-                            </div>
-                        </div>
+    <div class="mb-3">
+        @foreach($ratingDistribution as $star => $percentage)
+            <!-- Progress -->
+            <div class="flex items-center gap-x-3 whitespace-nowrap">
+                <div class="w-10 text-end">
+                    <span class="text-sm text-gray-800 dark:text-white">{{ $star }} star</span>
+                </div>
+                <div class="flex w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-neutral-700"
+                    role="progressbar" aria-valuenow="{{ $percentage }}" 
+                    aria-valuemin="0" aria-valuemax="100">
+                    <div class="flex flex-col justify-center overflow-hidden text-xs text-center text-white transition duration-500 bg-yellow-400 rounded-full whitespace-nowrap dark:bg-yellow-600"
+                        style="width: {{ $percentage }}%"></div>
+                </div>
+                <div class="w-10 text-end">
+                    <span class="text-sm text-gray-800 dark:text-white">{{ $percentage }}%</span>
+                </div>
+            </div>
+            <!-- End Progress -->
+        @endforeach
+    </div>
+</div>
                     </div>
                 </div>
                 <!-- End Sidebar -->

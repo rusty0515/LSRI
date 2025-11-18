@@ -111,6 +111,7 @@ class CustomerDashboard extends Component
             ->when($this->activeRequestTab !== 'all', fn($q) => $q->where('status', $this->activeRequestTab))
             ->take(10)
             ->latest()
+            ->take(5)
             ->get();
     }
 
@@ -135,27 +136,30 @@ class CustomerDashboard extends Component
     }
 
     public function loadVehicles()
-    {
-        $this->vehicles = ServiceRequest::where('user_id', auth()->id())
-            ->select('vehicle_type', 'remarks')
-            ->selectRaw('MIN(created_at) as first_used')
-            ->selectRaw('MAX(created_at) as last_used')
-            ->selectRaw('COUNT(*) as service_count')
-            ->groupBy('vehicle_type', 'remarks')
-            ->latest('last_used')
-            ->get()
-            ->map(function ($request) {
-                return [
-                    'type' => $request->vehicle_type,
-                    'type_label' => VehicleTypeEnum::from($request->vehicle_type)->getLabel(),
-                    'brand_model' => $this->extractBrandModel($request->remarks),
-                    'service_count' => $request->service_count,
-                    'first_used' => Carbon::parse($request->first_used),
-                    'last_used' => Carbon::parse($request->last_used),
-                    'remarks' => $request->remarks
-                ];
-            });
-    }
+{
+    $this->vehicles = ServiceRequest::where('user_id', auth()->id())
+        ->select('vehicle_type', 'remarks')
+        ->selectRaw('MIN(created_at) as first_used')
+        ->selectRaw('MAX(created_at) as last_used')
+        ->selectRaw('COUNT(*) as service_count')
+        ->groupBy('vehicle_type', 'remarks')
+        ->latest('last_used')
+        ->get()
+        ->map(function ($request) {
+            $brandModel = $this->extractBrandModel($request->remarks);
+            
+            return [
+                'type' => $request->vehicle_type,
+                'type_label' => VehicleTypeEnum::from($request->vehicle_type)->getLabel(),
+                'brand' => $brandModel['brand'],
+                'model' => $brandModel['model'],
+                'service_count' => $request->service_count,
+                'first_used' => Carbon::parse($request->first_used),
+                'last_used' => Carbon::parse($request->last_used),
+                'remarks' => $request->remarks
+            ];
+        });
+}
 
     private function extractBrandModel($remarks)
     {

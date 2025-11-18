@@ -19,10 +19,48 @@ class ShopPageSingle extends Component
     public Product $product;
     public $related_products;
 
-    
     public $ratingStar;
     public $reviewText;
     public $ratingImages = [];
+    public $newRatingImages = [];
+    public $uploadProgress = 0;
+    public $maxImages = 5;
+
+    // Add these properties and methods to your ShopPageSingle component
+
+    public function getAverageRatingProperty()
+    {
+        return Rating::where('product_id', $this->product->id)
+            ->average('rating') ?? 0;
+    }
+
+    public function getTotalReviewsProperty()
+    {
+        return Rating::where('product_id', $this->product->id)->count();
+    }
+
+    public function getRatingDistributionProperty()
+    {
+        $distribution = [];
+        $total = $this->totalReviews;
+        
+        if ($total > 0) {
+            for ($i = 5; $i >= 1; $i--) {
+                $count = Rating::where('product_id', $this->product->id)
+                    ->where('rating', $i)
+                    ->count();
+                $percentage = round(($count / $total) * 100);
+                $distribution[$i] = $percentage;
+            }
+        } else {
+            // If no reviews, set all to 0%
+            for ($i = 5; $i >= 1; $i--) {
+                $distribution[$i] = 0;
+            }
+        }
+        
+        return $distribution;
+    }
 
     public function mount($prod_slug)
     {
@@ -39,7 +77,6 @@ class ShopPageSingle extends Component
         $categoryIds = $this->product->productCategories->pluck('id')->toArray();
 
         if (empty($categoryIds)) {
-            // If no categories, get random visible products
             $this->related_products = Product::withBasicRelations()
                 ->visible()
                 ->where('id', '!=', $this->product->id)
@@ -56,55 +93,142 @@ class ShopPageSingle extends Component
     }
 
     public function submitReview()
-{
-    $this->validate([
-        'ratingStar' => 'required|integer|min:1|max:5',
-        'reviewText' => 'required|string|min:10|max:1000',
-        'ratingImages.*' => 'nullable|image|max:5120',
-    ]);
+    {
+        $this->validate([
+            'ratingStar' => 'required|integer|min:1|max:5',
+            'reviewText' => 'required|string|min:10|max:1000',
+            'ratingImages.*' => 'nullable|image|max:5120',
+        ], [
+            'ratingStar.required' => 'Please select a rating',
+            'reviewText.required' => 'Please write a review',
+            'reviewText.min' => 'Review must be at least 10 characters long',
+            'ratingImages.*.image' => 'Each file must be an image (jpeg, png, jpg, gif)',
+            'ratingImages.*.max' => 'Each image must not be larger than 5MB',
+        ]);
 
-    if (!Auth::check()) {
-        session()->flash('error', 'Please login to submit a review.');
-        return;
+        // Merge any new images first
+        $this->mergeNewImages();
+
+        // Check if user has reached maximum image limit
+        if (count($this->ratingImages) > $this->maxImages) {
+            session()->flash('error', "You can only upload up to {$this->maxImages} images.");
+            return;
+        }
+
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to submit a review.');
+            return;
+        }
+
+        try {
+            $review = Rating::updateOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'product_id' => $this->product->id,
+                ],
+                [
+                    'rating' => $this->ratingStar,
+                    'review' => $this->reviewText,
+                ]
+            );
+
+            // Handle image uploads
+            if (!empty($this->ratingImages)) {
+                // Delete existing images when updating
+                if (!$review->wasRecentlyCreated && method_exists($review, 'ratingImages')) {
+                    $review->ratingImages()->delete();
+                }
+                
+                foreach ($this->ratingImages as $image) {
+                    $path = $image->store('review-images', 'public');
+                    $review->ratingImages()->create(['url' => $path]);
+                }
+            }
+
+            $this->resetForm();
+            
+            session()->flash('success', $review->wasRecentlyCreated 
+                ? 'Thank you for your review!' 
+                : 'Your review has been updated!');
+
+            $this->resetPage();
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'There was an error submitting your review. Please try again.');
+        }
     }
 
-    // Use updateOrCreate to handle both new and existing ratings
-    $review = Rating::updateOrCreate(
-        [
-            'user_id' => Auth::id(),
-            'product_id' => $this->product->id,
-        ],
-        [
-            'rating' => $this->ratingStar,
-            'review' => $this->reviewText,
-        ]
-    );
-
-    // Handle image uploads
-    if ($this->ratingImages) {
-        // Delete existing images when updating (optional)
-        if ($review->wasRecentlyCreated === false && method_exists($review, 'ratingImages')) {
-            $review->ratingImages()->delete();
+    public function removeImage($index)
+    {
+        if (isset($this->ratingImages[$index])) {
+            unset($this->ratingImages[$index]);
+            $this->ratingImages = array_values($this->ratingImages);
         }
+    }
+
+    public function updatedNewRatingImages()
+    {
+        $this->validate([
+            'newRatingImages.*' => 'image|max:5120',
+        ]);
+
+        $this->mergeNewImages();
+    }
+
+    private function mergeNewImages()
+    {
+        if (empty($this->newRatingImages)) {
+            return;
+        }
+
+        $totalImages = count($this->ratingImages) + count($this->newRatingImages);
         
-        foreach ($this->ratingImages as $image) {
-            $path = $image->store('review-images', 'public');
-            $review->ratingImages()->create(['url' => $path]);
+        if ($totalImages > $this->maxImages) {
+            $allowedNewImages = $this->maxImages - count($this->ratingImages);
+            
+            if ($allowedNewImages > 0) {
+                $this->newRatingImages = array_slice($this->newRatingImages, 0, $allowedNewImages);
+                $this->ratingImages = array_merge($this->ratingImages, $this->newRatingImages);
+                session()->flash('info', "Added {$allowedNewImages} new images. Maximum {$this->maxImages} images allowed.");
+            } else {
+                session()->flash('error', "Maximum {$this->maxImages} images reached. Remove some images to add new ones.");
+            }
+        } else {
+            $this->ratingImages = array_merge($this->ratingImages, $this->newRatingImages);
         }
+
+        $this->newRatingImages = [];
     }
 
-    $this->reset(['ratingStar', 'reviewText', 'ratingImages']);
-    
-    session()->flash('success', $review->wasRecentlyCreated 
-        ? 'Thank you for your review!' 
-        : 'Your review has been updated!');
-}
+    public function clearAllImages()
+    {
+        $this->reset('ratingImages', 'newRatingImages');
+    }
+
+    public function resetForm()
+    {
+        $this->reset(['ratingStar', 'reviewText', 'ratingImages', 'newRatingImages', 'uploadProgress']);
+    }
+
+    public function getCanSubmitReviewProperty()
+    {
+        return Auth::check() && $this->ratingStar && $this->reviewText;
+    }
+
+    public function getRemainingImageSlotsProperty()
+    {
+        return max(0, $this->maxImages - count($this->ratingImages));
+    }
+
+    public function getTotalSelectedImagesProperty()
+    {
+        return count($this->ratingImages);
+    }
 
     #[Layout('layouts.app')]
-    #[Title('Shop')]
+    // #[Title('Shop - ')]
     public function render()
     {
-        // Get reviews with pagination in the render method
         $reviews = Rating::with(['user', 'ratingImages'])
             ->where('product_id', $this->product->id)
             ->latest()
@@ -114,6 +238,9 @@ class ShopPageSingle extends Component
             'product' => $this->product,
             'related_products' => $this->related_products,
             'reviews' => $reviews,
+            'averageRating' => $this->averageRating,
+            'totalReviews' => $this->totalReviews,
+            'ratingDistribution' => $this->ratingDistribution,
         ]);
     }
 }

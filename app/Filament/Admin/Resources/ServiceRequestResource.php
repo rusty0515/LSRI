@@ -95,10 +95,10 @@ class ServiceRequestResource extends Resource
                                             ),
 
                                             Select::make('user_id')
- ->relationship(
-        name: 'customer', // Change from 'user' to 'customer'
-        modifyQueryUsing: fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'customer')),
-    )
+                                                ->relationship(
+                                                        name: 'customer', // Change from 'user' to 'customer'
+                                                        modifyQueryUsing: fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'customer')),
+                                                    )
                                             ->getOptionLabelFromRecordUsing(fn (Model $record) => ucwords($record->name) ?? '')
                                             ->searchable('name')
                                             ->preload()
