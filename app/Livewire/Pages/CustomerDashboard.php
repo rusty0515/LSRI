@@ -148,11 +148,23 @@ class CustomerDashboard extends Component
         ->map(function ($request) {
             $brandModel = $this->extractBrandModel($request->remarks);
             
+            // Handle case where extractBrandModel returns a string
+            if (is_string($brandModel)) {
+                $brandModel = [
+                    'brand' => $brandModel,
+                    'model' => ''
+                ];
+            }
+            
+            // Ensure we always have brand and model keys
+            $brand = $brandModel['brand'] ?? '';
+            $model = $brandModel['model'] ?? '';
+            
             return [
                 'type' => $request->vehicle_type,
                 'type_label' => VehicleTypeEnum::from($request->vehicle_type)->getLabel(),
-                'brand' => $brandModel['brand'],
-                'model' => $brandModel['model'],
+                'brand' => $brand,
+                'model' => $model,
                 'service_count' => $request->service_count,
                 'first_used' => Carbon::parse($request->first_used),
                 'last_used' => Carbon::parse($request->last_used),
